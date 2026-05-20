@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Scores - SSF Chathamangalam Sector Sahitholsav</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/team-score.css">
+    <link href="https://fonts.cdnfonts.com/css/cooper-black" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/session.js"></script>
+    <script src="js/activity-log.js"></script>
+    <script src="js/auth.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header" style="text-align: center;">
+                <img src="images/logo.png" alt="SSF Logo" class="logo" style="height: 50px;">
+                <h2><span class="ssf-font" style="color:var(--primary)">SSF</span> Chathamangalam</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">Administrative</div>
+                <a href="dashboard.html" class="nav-item">Dashboard</a>
+                <a href="admin.html" class="nav-item">Manage Results</a>
+                <a href="fund-dashboard.html" class="nav-item">Fund Collections</a>
+                <a href="admin-score.html" class="nav-item active">Team Scores</a>
+                <div style="flex:1"></div>
+                <button onclick="handleLogout()" class="nav-item"
+                    style="width:100%; text-align:left; background:none; border:none; color:var(--danger)">
+                    Sign Out
+                </button>
+                <div
+                    style="padding: 1rem; font-size: 0.75rem; color: var(--muted); border-top: 1px solid var(--border);">
+                    <p><span class="ssf-font">SSF</span> Chathamangalam</p>
+                    <p>ssfchathamangalam@gmail.com</p>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="topbar">
+                <h1 class="page-title">🏆 Team Score Management</h1>
+                <a href="team-score.html" target="_blank" class="btn-admin btn-outline" style="text-decoration:none;">🌐 View Public Page</a>
+            </div>
+
+            <!-- Create Update Section -->
+            <div class="admin-panel" style="margin-bottom:1.5rem;">
+                <div class="score-toolbar">
+                    <span class="toolbar-title">Score Updates</span>
+                    <button class="btn-admin btn-green" id="btnToggleCreate">+ Create Update</button>
+                </div>
+
+                <!-- Create Form (hidden by default) -->
+                <div class="create-form-panel" id="createFormPanel">
+                    <form id="createForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="inputTitle">Title *</label>
+                                <input type="text" id="inputTitle" placeholder="e.g. After 50 Results" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputCount">Results Count</label>
+                                <input type="number" id="inputCount" placeholder="e.g. 50" min="0">
+                            </div>
+                            <div class="form-group full">
+                                <label for="inputDesc">Description</label>
+                                <textarea id="inputDesc" rows="2" placeholder="Optional description…"></textarea>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:0.75rem; justify-content:flex-end;">
+                            <button type="submit" class="btn-admin btn-green" id="btnSubmitCreate">Create
+                                Update</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Select Update -->
+                <div class="update-selector-bar">
+                    <select class="update-select" id="updateSelect">
+                        <option value="">Loading updates…</option>
+                    </select>
+                    <span class="update-status-badge draft" id="updateStatusBadge" style="display:none;"></span>
+                </div>
+            </div>
+
+            <!-- Editor Empty State -->
+            <div class="admin-panel" id="editorEmpty">
+                <div class="admin-empty">
+                    <div class="empty-icon">🏆</div>
+                    <p>Select or create an update above to manage team scores.</p>
+                </div>
+            </div>
+
+            <!-- Editor Panel -->
+            <div class="admin-panel" id="editorPanel" style="display:none;">
+
+                <!-- Actions Bar -->
+                <div class="score-toolbar" style="border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1rem;">
+                    <span class="toolbar-title">Team Scores</span>
+                    <button class="btn-admin btn-blue" id="btnSave">💾 Save Scores</button>
+                    <button class="btn-admin btn-green" id="btnPublish">🚀 Publish</button>
+                    <button class="btn-admin btn-red" id="btnDelete">🗑 Delete</button>
+                </div>
+
+                <!-- Team Edit Rows -->
+                <div class="team-edit-list" id="teamEditList"></div>
+
+                <!-- Add Team -->
+                <div class="add-team-row">
+                    <input type="text" id="newTeamName" placeholder="New team name…">
+                    <button class="btn-admin btn-outline" id="btnAddTeam">+ Add Team</button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="js/admin-score.js"></script>
+</body>
+
+</html>

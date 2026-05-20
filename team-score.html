@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team Standings - SSF Chathamangalam Sector Sahitholsav</title>
+  <meta name="description"
+    content="Live team point table of SSF Chathamangalam Sector Sahitholsav 33rd Edition. View real-time standings.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <link href="https://fonts.cdnfonts.com/css/cooper-black" rel="stylesheet">
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/team-score.css">
+</head>
+
+<body>
+
+  <!-- ═══ HERO SECTION ═══ -->
+  <header class="hero">
+    <div class="corner-branding">
+      <img src="images/logo.png" alt="SSF Logo" class="corner-logo">
+      <span class="corner-ssf">SSF</span>
+    </div>
+    <div class="edition-badge">✦ 33rd Edition ✦</div>
+    <img src="images/sector sahi  vertical .png" alt="Sahitholsav" class="hero-main-img">
+    <div class="hero-tagline">🏆 <span>Point Table</span></div>
+    <div class="hero-divider"></div>
+  </header>
+
+  <!-- ═══ BACK LINK ═══ -->
+  <div class="back-link-bar">
+    <a href="index.html" class="back-link">← Back to Results</a>
+  </div>
+
+  <!-- ═══ MAIN CONTENT ═══ -->
+  <main class="container">
+    <div class="standings-card">
+      <div class="standings-head">🏆 Point Table</div>
+
+      <!-- Current Update Info -->
+      <div class="update-info" id="updateInfo" style="display:none;"></div>
+
+      <!-- Loading State -->
+      <div id="loadingState" style="padding: 2rem; text-align:center;">
+        <div class="mini-spinner"></div>
+        <p style="color:var(--muted); font-size:0.9rem;">Loading standings…</p>
+      </div>
+
+      <!-- Empty State -->
+      <div id="emptyState" class="state-box" style="display:none;">
+        <div class="state-icon">🏆</div>
+        <p>No standings available yet.</p>
+      </div>
+
+      <!-- Team List -->
+      <div class="team-list" id="teamList"></div>
+
+      <!-- Previous Updates -->
+      <div class="updates-section" id="updatesSection" style="display:none;">
+        <div class="updates-section-title">📋 Previous Updates</div>
+        <div class="updates-grid" id="updatesGrid"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="site-footer">
+    <img src="images/logo.png" alt="SSF" class="footer-logo">
+    <div class="footer-brand"><span class="ssf-font">SSF</span> Chathamangalam Sector</div>
+    <div class="footer-sub">Sahitholsav 2026 — 33rd Edition</div>
+    <div class="footer-sub" style="opacity: 0.6; margin-top: 0.1rem;">ssfchathamangalam@gmail.com</div>
+    <div class="footer-copy">© 2026 <span class="ssf-font" style="font-size: 0.9em;">SSF</span> Chathamangalam
+      Sector. All rights reserved.</div>
+  </footer>
+
+  <script src="js/team-score.js"></script>
+</body>
+
+</html>

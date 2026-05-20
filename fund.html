@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Fund Collection - SSF Chathamangalam Sector Sahitholsav</title>
+  <meta name="description" content="SSF Chathamangalam Sector Sahitholsav Fund Collection - Issue Digital Receipts instantly.">
+  <link rel="stylesheet" href="css/fund.css">
+  <link href="https://fonts.cdnfonts.com/css/cooper-black" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/session.js"></script>
+  <script src="js/activity-log.js"></script>
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <nav class="fund-nav">
+    <img src="images/logo.png" alt="SSF Logo">
+    <h1><span class="ssf-font">SSF</span> Fund Collection</h1>
+    <a href="fund-dashboard.html">Dashboard</a>
+  </nav>
+
+  <div class="fund-container">
+
+    <!-- Saved Draft Notice -->
+    <div id="draftNotice" class="fund-card" style="display:none; border-left: 4px solid var(--warning); padding: 1rem 1.25rem;">
+      <strong style="color:var(--warning);">📋 Draft Restored</strong>
+      <p style="font-size:0.85rem; color:var(--muted); margin-top:0.25rem;">Your previous incomplete entry has been restored.</p>
+      <button id="clearDraft" style="margin-top:0.5rem; background:none; border:none; color:var(--danger); font-size:0.8rem; cursor:pointer;">✕ Clear draft</button>
+    </div>
+
+    <!-- Main Form -->
+    <form id="fundForm" class="fund-card" novalidate>
+      <div class="section-head">Donor Information</div>
+
+      <!-- Donor Name -->
+      <div class="form-group">
+        <label for="donorName">Donor Name *</label>
+        <input type="text" id="donorName" placeholder="Full name of the donor"
+               autocomplete="off" autocapitalize="words" required>
+      </div>
+
+      <div class="form-row">
+        <!-- Place -->
+        <div class="form-group" style="flex:1">
+          <label for="place">Place *</label>
+          <input type="text" id="place" placeholder="Village / Town"
+                 autocapitalize="words" required>
+        </div>
+      </div>
+
+      <div class="section-head" style="margin-top:0.5rem;">Amount</div>
+
+      <!-- Quick amount buttons -->
+      <div class="amount-grid" id="quickAmounts">
+        <button type="button" class="amount-btn" data-amount="100">₹100</button>
+        <button type="button" class="amount-btn" data-amount="250">₹250</button>
+        <button type="button" class="amount-btn" data-amount="500">₹500</button>
+        <button type="button" class="amount-btn" data-amount="1000">₹1000</button>
+      </div>
+
+      <div class="form-group">
+        <label for="amount">Custom Amount (₹) *</label>
+        <input type="number" id="amount" placeholder="Enter amount"
+               inputmode="numeric" min="1" required>
+      </div>
+
+      <div class="section-head" style="margin-top:0.5rem;">Collection Details</div>
+
+
+
+      <!-- Payment method -->
+      <div class="form-group">
+        <label for="paymentMethod">Payment Method *</label>
+        <select id="paymentMethod" required>
+          <option value="">Select method...</option>
+          <option value="Cash">Cash</option>
+          <option value="UPI">UPI</option>
+          <option value="Bank Transfer">Bank Transfer</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <!-- Collector -->
+      <div class="form-group">
+        <label for="collectorName">Gen. Secretary Name *</label>
+        <input type="text" id="collectorName" placeholder="Your name"
+               autocapitalize="words" required>
+      </div>
+
+      <!-- Notes -->
+      <div class="form-group">
+        <label for="notes">Notes (Optional)</label>
+        <textarea id="notes" placeholder="Any additional notes..."></textarea>
+      </div>
+
+      <!-- Submit button -->
+      <button type="submit" class="btn-submit" id="submitBtn">
+        <span>Done</span>
+      </button>
+    </form>
+
+    <!-- Post-Submission Success State -->
+    <div id="postSubmitState" class="fund-card" style="display:none; text-align:center; padding: 2.5rem 1.5rem;">
+      <div class="check-circle">✓</div>
+      <h2 style="color:var(--primary); margin-bottom: 0.5rem;">Collection Saved!</h2>
+      <p style="color:var(--muted); font-size: 0.95rem; margin-bottom: 2rem;">The data has been successfully stored in the database.</p>
+      
+      <div style="display:flex; flex-direction:column; gap:0.75rem;">
+        <button id="viewReceiptBtn" class="btn-submit" style="background:var(--secondary);">
+          <span>View & Download Receipt</span>
+        </button>
+        <button onclick="nextCollection()" class="btn-submit" style="background:#f1f5f9; color:var(--text);">
+          <span>Collect Another</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Receipt Modal -->
+  <div id="receiptModal">
+    <div class="receipt-wrapper">
+      <!-- Action buttons at top -->
+      <div class="receipt-actions" id="receiptActions">
+        <button class="btn-download" onclick="downloadReceiptPdf()">⬇ PDF</button>
+        <button class="btn-print" onclick="printReceipt()">🖨 Print</button>
+        <button class="btn-whatsapp" onclick="shareWhatsApp()">📤 WhatsApp</button>
+        <button class="btn-next" onclick="nextCollection()">➕ Next</button>
+        <button class="btn-close-receipt" onclick="closeReceipt()">✕</button>
+      </div>
+
+      <!-- The printable receipt -->
+      <div id="receiptPaper">
+        <div class="rcp-header">
+          <img src="images/logo.png" alt="SSF Logo">
+          <h2 style="font-family: inherit;"><span class="ssf-font" style="color:var(--primary); font-size: 1.4em; line-height: 1.2;">SSF</span><br><span style="font-size: 0.85em; letter-spacing: 0.05em;">CHATHAMANGALAM SECTOR SAHITHOLSAV</span></h2>
+          <p style="font-size: 0.72rem; margin-bottom: 0.25rem;">ssfchathamangalam@gmail.com</p>
+          <p>Official Fund Collection Receipt</p>
+        </div>
+
+        <div class="rcp-meta">
+          <div>
+            <span>Receipt No.: </span>
+            <strong id="rcp-number">-</strong>
+          </div>
+          <div>
+            <span>Date: </span>
+            <strong id="rcp-date">-</strong>
+          </div>
+        </div>
+
+        <div class="rcp-body">
+          <div class="rcp-line">
+            <label>Received with thanks from</label>
+            <span class="rcp-value" id="rcp-donor"></span>
+          </div>
+          <div class="rcp-line">
+            <label>Place</label>
+            <span class="rcp-value" id="rcp-place"></span>
+          </div>
+
+
+          <div class="rcp-amount-box">
+            <span class="rcp-currency">₹</span>
+            <span class="rcp-amount-num" id="rcp-amount">0</span>
+          </div>
+
+          <div class="rcp-line">
+            <label>Amount in words</label>
+            <span class="rcp-value" id="rcp-words"></span>
+          </div>
+
+          <div class="rcp-line">
+            <label>Payment Method</label>
+            <span class="rcp-value" id="rcp-method"></span>
+          </div>
+          <div class="rcp-line" id="rcp-notes-row">
+            <label>Notes</label>
+            <span class="rcp-value" id="rcp-notes"></span>
+          </div>
+
+          <!-- Signature section -->
+          <div class="rcp-sig" style="justify-content: flex-end;">
+            <div class="rcp-sig-col" style="position: relative;">
+              <img src="images/WhatsApp_Image_2026-05-19_at_23.15.24-removebg-preview.png" 
+                   alt="Signature" 
+                   style="position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); height: 45px; pointer-events: none;">
+              <div class="sig-line"></div>
+              <div id="rcp-collector-label">Gen. Secretary</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rcp-footer">
+          <strong><span class="ssf-font" style="color:var(--primary)">SSF</span> Chathamangalam Sector</strong><br>
+          Thank you for your generous contribution 🌿
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div class="toast-wrap" id="toastWrap"></div>
+
+  <!-- jsPDF for PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/fund.js"></script>
+</body>
+</html>

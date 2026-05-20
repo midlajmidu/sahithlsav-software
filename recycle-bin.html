@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recycle Bin - SSF Portal</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.cdnfonts.com/css/cooper-black" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/session.js"></script>
+    <script src="js/auth.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="images/logo.png" alt="SSF Logo" class="logo" style="height: 40px;">
+                <h2 class="ssf-font">Portal</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">Administrative</div>
+                <a href="dashboard.html" class="nav-item">Dashboard</a>
+                <a href="admin.html" class="nav-item">Results</a>
+                <a href="fund-dashboard.html" class="nav-item">Funds</a>
+                <a href="recycle-bin.html" class="nav-item active">Recycle Bin</a>
+                <div style="flex:1"></div>
+                <button onclick="handleLogout()" class="nav-item" style="color:var(--danger); border:none; background:none;">Sign Out</button>
+            </nav>
+        </aside>
+
+        <!-- Main -->
+        <main class="main-content">
+            <div class="topbar">
+                <h1 class="page-title">Recycle Bin</h1>
+                <p style="font-size:0.8rem; color:var(--text-muted);">Items deleted here are automatically purged after 30 days.</p>
+            </div>
+
+            <div class="admin-panel">
+                <div class="tabs" style="display:flex; gap:10px; margin-bottom:20px;">
+                    <button id="tab-programs" class="btn-primary" onclick="loadDeleted('programs')">Deleted Results</button>
+                    <button id="tab-funds" class="btn-primary" style="opacity:0.6" onclick="loadDeleted('fund_receipts')">Deleted Funds</button>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="deleted-table">
+                        <thead>
+                            <tr id="table-header">
+                                <!-- Header based on tab -->
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <!-- Rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let currentTable = 'programs';
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            await checkAuth(true);
+            loadDeleted('programs');
+        });
+
+        async function loadDeleted(table) {
+            currentTable = table;
+            
+            // UI Toggle
+            document.getElementById('tab-programs').style.opacity = table === 'programs' ? '1' : '0.6';
+            document.getElementById('tab-funds').style.opacity = table === 'fund_receipts' ? '1' : '0.6';
+
+            const header = document.getElementById('table-header');
+            if (table === 'programs') {
+                header.innerHTML = '<th>Title</th><th>Category</th><th>Deleted Date</th><th>Actions</th>';
+            } else {
+                header.innerHTML = '<th>Receipt No</th><th>Donor</th><th>Amount</th><th>Deleted Date</th><th>Actions</th>';
+            }
+
+            const { data, error } = await supabaseClient
+                .from(table)
+                .select('*')
+                .not('deleted_at', 'is', null)
+                .order('deleted_at', { ascending: false });
+
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+
+            if (error) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">Error: ${error.message}</td></tr>`;
+                return;
+            }
+
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:40px;">No deleted items found.</td></tr>`;
+                return;
+            }
+
+            data.forEach(item => {
+                const tr = document.createElement('tr');
+                const deletedDate = new Date(item.deleted_at).toLocaleString();
+                
+                if (table === 'programs') {
+                    tr.innerHTML = `
+                        <td>${item.title}</td>
+                        <td>${item.category_id}</td>
+                        <td>${deletedDate}</td>
+                        <td>
+                            <button class="btn-primary" style="padding:4px 10px; font-size:0.75rem;" onclick="restoreItem('${item.id}')">Restore</button>
+                        </td>
+                    `;
+                } else {
+                    tr.innerHTML = `
+                        <td>${item.receipt_no}</td>
+                        <td>${item.donor_name}</td>
+                        <td>₹${item.amount}</td>
+                        <td>${deletedDate}</td>
+                        <td>
+                            <button class="btn-primary" style="padding:4px 10px; font-size:0.75rem;" onclick="restoreItem('${item.id}')">Restore</button>
+                        </td>
+                    `;
+                }
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function restoreItem(id) {
+            if (!confirm('Restore this item?')) return;
+            
+            const { error } = await supabaseClient
+                .from(currentTable)
+                .update({ deleted_at: null })
+                .eq('id', id);
+
+            if (error) {
+                alert('Restore failed: ' + error.message);
+            } else {
+                SessionGuard.notify('Item restored successfully', 'success');
+                loadDeleted(currentTable);
+            }
+        }
+    </script>
+</body>
+</html>

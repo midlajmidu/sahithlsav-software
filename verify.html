@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt Verification - SSF Chathamangalam Sector</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.cdnfonts.com/css/cooper-black" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <style>
+        .verify-card {
+            max-width: 500px;
+            margin: 100px auto;
+            padding: 40px;
+            text-align: center;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .status-verified { background: #e8f5e9; color: #2e7d32; border: 1px solid #2e7d32; }
+        .status-not-found { background: #ffebee; color: #c62828; border: 1px solid #c62828; }
+        .receipt-info { text-align: left; margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .info-label { color: #666; font-size: 0.9rem; }
+        .info-value { font-weight: 600; }
+    </style>
+</head>
+<body style="background: #f0f4f8;">
+
+    <div class="container">
+        <div class="card verify-card">
+            <img src="images/logo.png" alt="SSF Logo" style="height: 60px; margin-bottom: 20px;">
+            <h1 class="ssf-font" style="font-size: 1.5rem; margin-bottom: 10px;">Receipt Verification</h1>
+            
+            <div id="loader" class="loader-spinner" style="margin: 30px auto;"></div>
+            
+            <div id="result-content" style="display: none;">
+                <div id="status-box"></div>
+                
+                <div id="receipt-details" class="receipt-info">
+                    <!-- Dynamic Info -->
+                </div>
+                
+                <a href="index.html" class="btn-primary" style="margin-top: 30px; display: block; text-decoration: none;">Go to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const receiptId = urlParams.get('id');
+
+            if (!receiptId) {
+                showError('No receipt ID provided.');
+                return;
+            }
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('fund_receipts')
+                    .select('*')
+                    .eq('receipt_no', receiptId)
+                    .is('deleted_at', null)
+                    .single();
+
+                if (error || !data) {
+                    showError('Receipt Not Found');
+                } else {
+                    showSuccess(data);
+                }
+            } catch (err) {
+                showError('System Error');
+            }
+        });
+
+        function showSuccess(data) {
+            document.getElementById('loader').style.display = 'none';
+            const content = document.getElementById('result-content');
+            content.style.display = 'block';
+
+            document.getElementById('status-box').innerHTML = `
+                <div class="status-badge status-verified">✅ VERIFIED OFFICIAL RECEIPT</div>
+                <p style="color: #666;">This receipt was issued by SSF Chathamangalam Sector.</p>
+            `;
+
+            document.getElementById('receipt-details').innerHTML = `
+                <div class="info-row">
+                    <span class="info-label">Receipt No:</span>
+                    <span class="info-value">${data.receipt_no}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Donor Name:</span>
+                    <span class="info-value">${data.donor_name}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Amount:</span>
+                    <span class="info-value">₹${Number(data.amount).toLocaleString('en-IN')}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Issued Date:</span>
+                    <span class="info-value">${new Date(data.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Collector:</span>
+                    <span class="info-value">${data.collector_name || 'Gen. Secretary'}</span>
+                </div>
+            `;
+        }
+
+        function showError(msg) {
+            document.getElementById('loader').style.display = 'none';
+            const content = document.getElementById('result-content');
+            content.style.display = 'block';
+
+            document.getElementById('status-box').innerHTML = `
+                <div class="status-badge status-not-found">❌ INVALID RECEIPT</div>
+                <h3 style="color: #c62828;">${msg}</h3>
+                <p style="color: #666; margin-top: 10px;">This receipt ID could not be verified in our records.</p>
+            `;
+        }
+    </script>
+</body>
+</html>

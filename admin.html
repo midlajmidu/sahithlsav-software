@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Results - SSF Chathamangalam Sector Sahitholsav</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.cdnfonts.com/css/cooper-black" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/session.js"></script>
+    <script src="js/activity-log.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/image-optimizer.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header" style="text-align: center;">
+                <img src="images/logo.png" alt="SSF Logo" class="logo" style="height: 50px;">
+                <h2><span class="ssf-font" style="color:var(--primary)">SSF</span> Chathamangalam</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">Administrative</div>
+                <a href="dashboard.html" class="nav-item">Dashboard</a>
+                <a href="admin.html" class="nav-item active">Manage Results</a>
+                <a href="fund-dashboard.html" class="nav-item">Fund Collections</a>
+                <a href="admin-score.html" class="nav-item">Team Scores</a>
+                <div style="flex:1"></div>
+                <button onclick="handleLogout()" class="nav-item"
+                    style="width:100%; text-align:left; background:none; border:none; color:var(--danger)">
+                    Sign Out
+                </button>
+                <div
+                    style="padding: 1rem; font-size: 0.75rem; color: var(--muted); border-top: 1px solid var(--border);">
+                    <p><span class="ssf-font">SSF</span> Chathamangalam</p>
+                    <p>ssfchathamangalam@gmail.com</p>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="topbar">
+                <h1 class="page-title">Manage Results</h1>
+                <div style="display:flex; gap:1rem;">
+                    <a href="fund.html" target="_blank" class="btn-primary" style="background:var(--secondary); width:auto; padding:0.5rem 1rem; font-size:0.875rem;">📋 Fund Entry Form</a>
+                    <a href="index.html" target="_blank" class="btn-primary" style="background:var(--info); width:auto; padding:0.5rem 1rem; font-size:0.875rem;">🌐 View Live Site</a>
+                </div>
+            </div>
+
+            <!-- Quick Access Panel -->
+            <div class="admin-panel" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1.5rem; margin-bottom:1.5rem;">
+                <a href="fund.html" target="_blank" style="display:flex; align-items:center; gap:1rem; padding:1rem; border:1px solid var(--border); border-radius:var(--radius-md); text-decoration:none; color:inherit; transition:all 0.3s ease;">
+                    <div style="font-size:2rem; background:rgba(43, 187, 173, 0.1); color:var(--secondary); width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center;">📑</div>
+                    <div>
+                        <div style="font-weight:700;">Fund Entry</div>
+                        <div style="font-size:0.75rem; color:var(--text-muted);">Open public collection form</div>
+                    </div>
+                </a>
+                <a href="index.html" target="_blank" style="display:flex; align-items:center; gap:1rem; padding:1rem; border:1px solid var(--border); border-radius:var(--radius-md); text-decoration:none; color:inherit; transition:all 0.3s ease;">
+                    <div style="font-size:2rem; background:rgba(59, 130, 246, 0.1); color:var(--info); width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center;">🌐</div>
+                    <div>
+                        <div style="font-weight:700;">Public Site</div>
+                        <div style="font-size:0.75rem; color:var(--text-muted);">View the live results portal</div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="admin-panel"
+                style="margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                <input type="text" id="searchInput" placeholder="Search programs..."
+                    style="padding: 0.5rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--border); min-width: 250px;">
+
+                <select id="categoryFilter"
+                    style="padding: 0.5rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--border); min-width: 200px;">
+                    <option value="">All Categories</option>
+                </select>
+
+                <div style="flex:1"></div>
+
+                <div class="dropdown" style="position: relative;">
+                    <button class="btn-primary" style="padding: 0.5rem 1rem; margin:0;" onclick="toggleBulk()">Bulk
+                        Actions ▼</button>
+                    <div id="bulkMenu"
+                        style="display:none; position:absolute; top:100%; right:0; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); box-shadow:var(--shadow-md); z-index:10; width:150px; flex-direction:column;">
+                        <button onclick="bulkAction('publish')"
+                            style="padding:0.75rem 1rem; text-align:left; width:100%; background:none; border:none; border-bottom:1px solid var(--border); font-size:0.9rem;">Publish
+                            Selected</button>
+                        <button onclick="bulkAction('unpublish')"
+                            style="padding:0.75rem 1rem; text-align:left; width:100%; background:none; border:none; font-size:0.9rem;">Unpublish
+                            Selected</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-panel table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;"><input type="checkbox" id="selectAll"></th>
+                            <th>Program Name</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Poster Preview</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="programsTableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Upload/Replace Modal -->
+    <div id="uploadModal" class="modal-overlay">
+        <div class="modal-content" style="width: 500px; padding: 2rem;">
+            <h2 id="uploadModalTitle" style="margin-bottom: 1rem;">Upload Poster</h2>
+            <p id="uploadModalProgramName" style="color: var(--text-muted); margin-bottom: 1.5rem;"></p>
+
+            <div id="uploadZone" class="upload-zone">
+                <input type="file" id="posterFile" accept="image/*" style="display:none;">
+                <div class="upload-icon">📁</div>
+                <p>Drag & drop image here or <strong>click to browse</strong></p>
+            </div>
+
+            <div id="previewArea" style="display:none; margin-top:1.5rem;">
+                <img id="previewImg"
+                    style="width:100%; max-height:250px; object-fit:contain; border-radius:var(--radius-md); border:1px solid var(--border);">
+
+                <div
+                    style="display:flex; justify-content:space-between; margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted);">
+                    <span>Original: <strong id="origSize">-</strong></span>
+                    <span>Optimized: <strong id="optSize" style="color:var(--success);">-</strong></span>
+                    <span>Reduction: <strong id="reductionRatio" style="color:var(--success);">-</strong></span>
+                </div>
+
+                <div class="progress-container" style="margin-top:1rem; display:none;" id="uploadProgressContainer">
+                    <div class="progress-bar" id="uploadProgressBar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:1rem; margin-top:2rem;">
+                <button onclick="closeUploadModal()"
+                    style="padding:0.75rem 1.5rem; border:1px solid var(--border); background:none; border-radius:var(--radius-md);">Cancel</button>
+                <button id="confirmUploadBtn" class="btn-primary" style="width:auto; padding:0.75rem 1.5rem;"
+                    disabled>Upload Image</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+
+</html>

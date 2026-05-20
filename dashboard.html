@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - SSF Chathamangalam Sector Sahitholsav</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.cdnfonts.com/css/cooper-black" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/session.js"></script>
+    <script src="js/activity-log.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header" style="text-align: center;">
+                <img src="images/logo.png" alt="SSF Logo" class="logo" style="height: 50px;">
+                <h2><span class="ssf-font" style="color:var(--primary)">SSF</span> Chathamangalam</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">Administrative</div>
+                <a href="dashboard.html" class="nav-item active">Dashboard</a>
+                <a href="admin.html" class="nav-item">Manage Results</a>
+                <a href="fund-dashboard.html" class="nav-item">Fund Collections</a>
+                <a href="admin-score.html" class="nav-item">Team Scores</a>
+                <div style="flex:1"></div>
+                <button onclick="handleLogout()" class="nav-item"
+                    style="width:100%; text-align:left; background:none; border:none; color:var(--danger)">
+                    Sign Out
+                </button>
+                <div
+                    style="padding: 1rem; font-size: 0.75rem; color: var(--muted); border-top: 1px solid var(--border);">
+                    <p><span class="ssf-font">SSF</span> Chathamangalam</p>
+                    <p>ssfchathamangalam@gmail.com</p>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="topbar">
+                <h1 class="page-title">Dashboard Overview</h1>
+                <div style="display:flex; gap:1rem;">
+                    <a href="fund.html" target="_blank" class="btn-primary" style="background:var(--secondary); width:auto; padding:0.5rem 1rem; font-size:0.875rem;">📋 Fund Entry Form</a>
+                    <a href="index.html" target="_blank" class="btn-primary" style="background:var(--info); width:auto; padding:0.5rem 1rem; font-size:0.875rem;">🌐 View Live Site</a>
+                </div>
+            </div>
+
+            <!-- Quick Access Panel -->
+            <div class="admin-panel" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1.5rem; margin-bottom:1.5rem;">
+                <a href="fund.html" target="_blank" style="display:flex; align-items:center; gap:1rem; padding:1rem; border:1px solid var(--border); border-radius:var(--radius-md); text-decoration:none; color:inherit; transition:all 0.3s ease;">
+                    <div style="font-size:2rem; background:rgba(43, 187, 173, 0.1); color:var(--secondary); width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center;">📑</div>
+                    <div>
+                        <div style="font-weight:700;">Fund Entry</div>
+                        <div style="font-size:0.75rem; color:var(--text-muted);">Open public collection form</div>
+                    </div>
+                </a>
+                <a href="index.html" target="_blank" style="display:flex; align-items:center; gap:1rem; padding:1rem; border:1px solid var(--border); border-radius:var(--radius-md); text-decoration:none; color:inherit; transition:all 0.3s ease;">
+                    <div style="font-size:2rem; background:rgba(59, 130, 246, 0.1); color:var(--info); width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center;">🌐</div>
+                    <div>
+                        <div style="font-weight:700;">Public Site</div>
+                        <div style="font-size:0.75rem; color:var(--text-muted);">View the live results portal</div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid" id="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-title">🗂 Total Categories</span>
+                    <span class="stat-value" id="stat-categories">…</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-title">📋 Total Programs</span>
+                    <span class="stat-value" id="stat-programs">…</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-title">✅ Uploaded Results</span>
+                    <span class="stat-value" id="stat-uploaded">…</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-title">⏳ Pending Results</span>
+                    <span class="stat-value" id="stat-pending">…</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-title">🌐 Published Results</span>
+                    <span class="stat-value" id="stat-published">…</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-title">📊 Overall Completion</span>
+                    <span class="stat-value" id="stat-completion">…</span>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progress-completion" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="stat-card" style="border-left: 4px solid var(--primary);">
+                    <span class="stat-title">💰 Total Funds Collected</span>
+                    <span class="stat-value" id="stat-funds" style="color:var(--primary);">…</span>
+                    <span style="font-size:0.8rem;color:var(--text-muted);" id="stat-funds-count"></span>
+                </div>
+            </div>
+
+            <!-- Analytics Section -->
+            <div class="stats-grid">
+                <div class="admin-panel" style="grid-column: span 1;">
+                    <h3 style="margin-bottom: 1rem;">Completion Status</h3>
+                    <canvas id="completionPieChart"></canvas>
+                </div>
+                <div class="admin-panel" style="grid-column: span 2;">
+                    <h3 style="margin-bottom: 1rem;">Category Progress</h3>
+                    <div id="category-progress-list" style="display:flex; flex-direction:column; gap:1rem;">
+                        <!-- dynamic progress -->
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="js/dashboard.js"></script>
+</body>
+
+</html>ript src="js/dashboard.js"></script>
+</body>
+
+</html>
