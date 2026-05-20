@@ -107,10 +107,19 @@ body {
   filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
 }
 
-.corner-ssf, .ssf-font, .ssf-heading {
+.corner-ssf {
+  font-family: 'Cooper Black', serif !important;
+  font-weight: 900;
+  font-size: 1.8rem;
+  color: var(--white);
+  letter-spacing: -0.02em;
+}
+
+.ssf-font, .ssf-heading {
   font-family: 'Cooper Black', serif !important;
   font-weight: 900;
 }
+
 
 .ssf-heading {
     color: #006400;
