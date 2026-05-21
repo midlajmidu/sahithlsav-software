@@ -13,13 +13,23 @@ let currentReceiptData = null; // Holds the last generated receipt
    TOAST NOTIFICATIONS
    =================== */
 function toast(message, type = 'info', duration = 3000) {
-  const wrap = document.getElementById('toastWrap');
+  let wrap = document.getElementById('toastWrap');
+  if (!wrap) {
+    wrap = document.createElement('div');
+    wrap.id = 'toastWrap';
+    wrap.className = 'toast-wrap';
+    document.body.appendChild(wrap);
+  }
   const el = document.createElement('div');
   el.className = `toast-msg ${type}`;
   el.textContent = message;
   wrap.appendChild(el);
-  setTimeout(() => el.remove(), duration);
+  setTimeout(() => {
+    el.style.opacity = '0';
+    setTimeout(() => el.remove(), 300);
+  }, duration);
 }
+
 
 /* ===================
    AMOUNT IN WORDS

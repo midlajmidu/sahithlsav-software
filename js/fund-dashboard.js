@@ -8,13 +8,23 @@ let currentPage = 1;
 
 /* ── Toast ── */
 function toast(msg, type = 'info', dur = 3000) {
-  const wrap = document.getElementById('toastWrap');
+  let wrap = document.getElementById('toastWrap');
+  if (!wrap) {
+    wrap = document.createElement('div');
+    wrap.id = 'toastWrap';
+    wrap.className = 'toast-wrap';
+    document.body.appendChild(wrap);
+  }
   const el   = document.createElement('div');
   el.className = `toast-msg ${type}`;
   el.textContent = msg;
   wrap.appendChild(el);
-  setTimeout(() => el.remove(), dur);
+  setTimeout(() => {
+    el.style.opacity = '0';
+    setTimeout(() => el.remove(), 300);
+  }, dur);
 }
+
 
 /* ── Format currency ── */
 function fmt(n) {
