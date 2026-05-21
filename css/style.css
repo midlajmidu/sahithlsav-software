@@ -285,9 +285,10 @@ h1, h2, h3, h4, h5, h6 {
 /* Dashboard Cards */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
   gap: 1.5rem;
 }
+
 
 .stat-card {
   background: var(--surface);
@@ -623,12 +624,63 @@ td {
 }
 
 /* Mobile Responsive */
-@media (max-width: 768px) {
-  .sidebar { transform: translateX(-100%); }
-  .sidebar.open { transform: translateX(0); }
-  .main-content { margin-left: 0; padding: 1rem; }
-  .menu-toggle { display: block; }
+@media (max-width: 992px) {
+  .sidebar { 
+    transform: translateX(-100%); 
+    z-index: 1000;
+  }
+  .sidebar.open { 
+    transform: translateX(0); 
+  }
+  .main-content { 
+    margin-left: 0 !important; 
+    padding: 1rem; 
+  }
+  .menu-toggle { 
+    display: flex !important; 
+  }
+  .topbar {
+    padding: 1rem;
+    gap: 1rem;
+  }
+  .page-title {
+    font-size: 1.25rem;
+  }
 }
+
+.menu-toggle {
+  display: none;
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 0.5rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 999;
+}
+
+.sidebar-overlay.active {
+  display: block;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 
 .empty-state {
   text-align: center;
@@ -711,4 +763,52 @@ td {
     text-align: center;
   }
 }
+/* ── Specific Mobile Fixes ── */
+@media (max-width: 600px) {
+  .admin-panel {
+    padding: 1rem;
+  }
+  .stat-card {
+    padding: 1rem;
+  }
+  .stat-value {
+    font-size: 1.5rem;
+  }
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .topbar div {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 0.5rem;
+  }
+  .topbar a, .topbar button {
+    width: 100% !important;
+  }
+  
+  /* Filter bar responsiveness */
+  div[style*="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;"] {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+  
+  input[style*="min-width"], select[style*="min-width"] {
+    min-width: 0 !important;
+    width: 100%;
+  }
 
+  th, td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.85rem;
+  }
+}
+
+
+
+@media (max-width: 991px) {
+  .admin-panel {
+    grid-column: span 1 !important;
+  }
+}

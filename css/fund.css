@@ -589,3 +589,9 @@ textarea { resize: vertical; min-height: 72px; }
     font-size: 12pt;
   }
 }
+@media (max-width: 480px) {
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+}

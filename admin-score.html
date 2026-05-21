@@ -17,8 +17,12 @@
 
 <body>
     <div class="app-container">
+        <!-- Sidebar Overlay for Mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
         <!-- Sidebar -->
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
+
             <div class="sidebar-header" style="text-align: center;">
                 <img src="images/logo.png" alt="SSF Logo" class="logo" style="height: 50px;">
                 <h2><span class="ssf-font" style="color:var(--primary)">SSF</span> Chathamangalam</h2>
@@ -45,7 +49,9 @@
         <!-- Main Content -->
         <main class="main-content">
             <div class="topbar">
+                <button class="menu-toggle" id="menuToggle">☰</button>
                 <h1 class="page-title">🏆 Team Score Management</h1>
+
                 <a href="team-score.html" target="_blank" class="btn-admin btn-outline" style="text-decoration:none;">🌐 View Public Page</a>
             </div>
 

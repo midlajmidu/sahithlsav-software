@@ -17,8 +17,11 @@
 
 <body>
     <div class="app-container">
+        <!-- Sidebar Overlay for Mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
         <!-- Sidebar -->
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <div class="sidebar-header" style="text-align: center;">
                 <img src="images/logo.png" alt="SSF Logo" class="logo" style="height: 50px;">
                 <h2><span class="ssf-font" style="color:var(--primary)">SSF</span> Chathamangalam</h2>
@@ -45,7 +48,9 @@
         <!-- Main Content -->
         <main class="main-content">
             <div class="topbar">
+                <button class="menu-toggle" id="menuToggle">☰</button>
                 <h1 class="page-title">Manage Results</h1>
+
                 <div style="display:flex; gap:1rem;">
                     <a href="fund.html" target="_blank" class="btn-primary" style="background:var(--secondary); width:auto; padding:0.5rem 1rem; font-size:0.875rem;">📋 Fund Entry Form</a>
                     <a href="results.html" target="_blank" class="btn-primary" style="background:var(--info); width:auto; padding:0.5rem 1rem; font-size:0.875rem;">🌐 View Results Portal</a>
@@ -53,7 +58,7 @@
             </div>
 
             <!-- Quick Access Panel -->
-            <div class="admin-panel" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1.5rem; margin-bottom:1.5rem;">
+            <div class="admin-panel" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap:1.5rem; margin-bottom:1.5rem;">
                 <a href="fund.html" target="_blank" style="display:flex; align-items:center; gap:1rem; padding:1rem; border:1px solid var(--border); border-radius:var(--radius-md); text-decoration:none; color:inherit; transition:all 0.3s ease;">
                     <div style="font-size:2rem; background:rgba(43, 187, 173, 0.1); color:var(--secondary); width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center;">📑</div>
                     <div>
@@ -70,15 +75,12 @@
                 </a>
             </div>
 
-            <div class="admin-panel"
-                style="margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
-                <input type="text" id="searchInput" placeholder="Search programs..."
-                    style="padding: 0.5rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--border); min-width: 250px;">
-
-                <select id="categoryFilter"
-                    style="padding: 0.5rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--border); min-width: 200px;">
+            <div class="admin-panel" style="margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                <input type="text" id="searchInput" placeholder="Search programs..." style="padding: 0.5rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--border); flex: 1; min-width: 180px;">
+                <select id="categoryFilter" style="padding: 0.5rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--border); flex: 1; min-width: 180px;">
                     <option value="">All Categories</option>
                 </select>
+
 
                 <div style="flex:1"></div>
 
@@ -130,7 +132,7 @@
 
     <!-- Upload/Replace Modal -->
     <div id="uploadModal" class="modal-overlay">
-        <div class="modal-content" style="width: 500px; padding: 2rem;">
+        <div class="modal-content" style="max-width: 95vw; width: 500px; padding: 2rem;">
             <h2 id="uploadModalTitle" style="margin-bottom: 1rem;">Upload Poster</h2>
             <p id="uploadModalProgramName" style="color: var(--text-muted); margin-bottom: 1.5rem;"></p>
 

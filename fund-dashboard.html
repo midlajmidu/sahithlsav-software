@@ -1,104 +1,129 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fund Dashboard - SSF Chathamangalam Sector Sahitholsav</title>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/fund.css">
-  <link href="https://fonts.cdnfonts.com/css/cooper-black" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase.js"></script>
-  <script src="js/session.js"></script>
-  <script src="js/activity-log.js"></script>
-  <script src="js/auth.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fund Dashboard - SSF Chathamangalam Sector Sahitholsav</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/fund.css">
+    <link href="https://fonts.cdnfonts.com/css/cooper-black" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/session.js"></script>
+    <script src="js/activity-log.js"></script>
+    <script src="js/auth.js"></script>
 </head>
 <body>
+    <div class="app-container">
+        <!-- Sidebar Overlay for Mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-  <!-- Header -->
-  <div class="dash-header">
-    <img src="images/logo.png" alt="SSF Logo">
-    <div>
-      <h1><span class="ssf-font">SSF</span> Fund Dashboard</h1>
-      <p style="font-size:0.8rem; opacity:0.8;"><span class="ssf-font">SSF</span> Chathamangalam Sector Sahitholsav</p>
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header" style="text-align: center;">
+                <img src="images/logo.png" alt="SSF Logo" class="logo" style="height: 50px;">
+                <h2><span class="ssf-font" style="color:var(--primary)">SSF</span> Chathamangalam</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">Administrative</div>
+                <a href="dashboard.html" class="nav-item">Dashboard</a>
+                <a href="admin.html" class="nav-item">Manage Results</a>
+                <a href="fund-dashboard.html" class="nav-item active">Fund Collections</a>
+                <a href="admin-score.html" class="nav-item">Team Scores</a>
+                <div style="flex:1"></div>
+                <button onclick="handleLogout()" class="nav-item" style="width:100%; text-align:left; background:none; border:none; color:var(--danger)">
+                    Sign Out
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="topbar">
+                <button class="menu-toggle" id="menuToggle">☰</button>
+                <h1 class="page-title">Fund Collection Dashboard</h1>
+                <div style="display:flex; gap:1rem;">
+                    <a href="fund.html" target="_blank" class="btn-primary" style="background:var(--secondary); width:auto; padding:0.5rem 1rem; font-size:0.875rem;">📋 Fund Entry Form</a>
+                </div>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <span class="stat-label">Total Collected</span>
+                    <span class="stat-value" id="stat-total">-</span>
+                    <span class="stat-sub">All time</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Today</span>
+                    <span class="stat-value" id="stat-today">-</span>
+                    <span class="stat-sub">Today's collection</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Total Donors</span>
+                    <span class="stat-value" id="stat-donors">-</span>
+                    <span class="stat-sub">Unique receipts</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Highest</span>
+                    <span class="stat-value" id="stat-highest">-</span>
+                    <span class="stat-sub">Single donation</span>
+                </div>
+            </div>
+
+            <div class="charts-grid" style="margin-bottom: 2rem;">
+                <div class="admin-panel">
+                    <h3 style="margin-bottom: 1rem;">Payment Method Distribution</h3>
+                    <canvas id="paymentChart"></canvas>
+                </div>
+            </div>
+
+            <!-- History Table -->
+            <div class="admin-panel table-responsive">
+                <div class="table-panel-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+                    <h2 style="font-size:1.25rem;">Collection History</h2>
+                    <div style="display:flex; gap:0.75rem; flex:1; min-width:200px; flex-wrap:wrap;">
+                        <input type="text" class="table-search" id="historySearch" placeholder="Search by name, place..." style="padding:0.6rem 1rem; border:1px solid var(--border); border-radius:var(--radius-md); flex:1; min-width:150px;">
+                        <button class="btn-export" onclick="exportCSV()" style="padding:0.6rem 1rem; background:var(--white); border:1.1px solid var(--border); border-radius:var(--radius-md); cursor:pointer; font-weight:600; flex:1;">⬇ CSV</button>
+                    </div>
+
+                </div>
+
+                <table class="dash-table">
+                    <thead>
+                        <tr>
+                            <th>Receipt #</th>
+                            <th>Donor Name</th>
+                            <th>Place</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                            <th>Collector</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyBody">
+                        <tr><td colspan="8" style="text-align:center; padding:2rem; color:#999;">Loading history...</td></tr>
+                    </tbody>
+                </table>
+
+                <div id="pagination" class="pagination-container" style="margin-top:1.5rem; justify-content:center;"></div>
+            </div>
+        </main>
     </div>
-    <a href="dashboard.html">← Main Dashboard</a>
-  </div>
 
-  <!-- Toast -->
-  <div class="toast-wrap" id="toastWrap"></div>
-
-  <div class="dash-container">
-
-    <!-- Stats Row -->
-    <div class="stats-grid" id="statsGrid">
-      <div class="stat-card"><span class="stat-label">Total Collected</span><span class="stat-value" id="stat-total">-</span><span class="stat-sub">All time</span></div>
-      <div class="stat-card"><span class="stat-label">Today</span><span class="stat-value" id="stat-today">-</span><span class="stat-sub">Today's collection</span></div>
-      <div class="stat-card"><span class="stat-label">Total Donors</span><span class="stat-value" id="stat-donors">-</span><span class="stat-sub">Unique receipts</span></div>
-      <div class="stat-card"><span class="stat-label">Highest</span><span class="stat-value" id="stat-highest">-</span><span class="stat-sub">Single donation</span></div>
-    </div>
-
-    <!-- Charts -->
-    <div class="charts-grid">
-      <div class="chart-card">
-        <h3>Payment Method</h3>
-        <canvas id="paymentChart"></canvas>
-      </div>
-    </div>
-
-    <!-- History Table -->
-    <div class="table-panel">
-      <div class="table-panel-header">
-        <h2>Collection History</h2>
-        <input type="text" class="table-search" id="historySearch" placeholder="Search by name, place...">
-        <div class="export-btns">
-          <button class="btn-export" onclick="exportCSV()">⬇ CSV</button>
+    <!-- Receipt View Modal -->
+    <div id="viewModal" style="position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; display:none; justify-content:center; align-items:flex-start; padding:1rem; overflow-y:auto;">
+        <div style="background:#fff; max-width:420px; width:100%; margin:auto; border-radius:1.25rem; overflow:hidden; box-shadow:0 10px 32px rgba(0,0,0,.2);">
+            <div style="padding:0.75rem 1rem; background:#f8fafc; display:flex; gap:0.5rem; flex-wrap:wrap; border-bottom:1px solid #e2e8f0;">
+                <button onclick="printViewModal()" style="padding:0.5rem 0.75rem; background:#334155; color:#fff; border:none; border-radius:0.5rem; font-size:0.8rem; cursor:pointer;">🖨 Print</button>
+                <button onclick="closeViewModal()" style="padding:0.5rem 0.75rem; background:#fee2e2; color:#ef4444; border:none; border-radius:0.5rem; font-size:0.8rem; cursor:pointer; margin-left:auto;">✕ Close</button>
+            </div>
+            <div id="viewReceiptPaper" style="padding:1.5rem;"></div>
         </div>
-      </div>
-
-      <div style="overflow-x: auto;">
-        <table class="dash-table">
-          <thead>
-            <tr>
-              <th>Receipt #</th>
-              <th>Name</th>
-              <th>Place</th>
-              <th>Amount</th>
-
-              <th>Method</th>
-              <th>Gen. Sec.</th>
-              <th>Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="historyBody">
-            <tr><td colspan="9" style="text-align:center; padding:2rem; color:#999;">Loading...</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Pagination -->
-      <div class="pagination" id="pagination"></div>
-    <!-- Footer -->
-    <footer style="margin-top: 3rem; text-align: center; color: var(--muted); padding-bottom: 2rem;">
-      <p style="font-size: 0.85rem; font-weight: 600;"><span class="ssf-font">SSF</span> Chathamangalam Sector Sahitholsav</p>
-      <p style="font-size: 0.8rem; margin-top: 0.25rem;">ssfchathamangalam@gmail.com</p>
-    </footer>
-
-  </div>
-
-  <!-- Receipt View Modal (re-uses fund receipt paper) -->
-  <div id="viewModal" style="position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; display:none; justify-content:center; align-items:flex-start; padding:1rem; overflow-y:auto;">
-    <div style="background:#fff; max-width:420px; width:100%; margin:auto; border-radius:1.25rem; overflow:hidden; box-shadow:0 10px 32px rgba(0,0,0,.2);">
-      <div style="padding:0.75rem 1rem; background:#f8fafc; display:flex; gap:0.5rem; flex-wrap:wrap; border-bottom:1px solid #e2e8f0;">
-        <button onclick="printViewModal()" style="padding:0.5rem 0.75rem; background:#334155; color:#fff; border:none; border-radius:0.5rem; font-size:0.8rem; cursor:pointer;">🖨 Print</button>
-        <button onclick="closeViewModal()" style="padding:0.5rem 0.75rem; background:#fee2e2; color:#ef4444; border:none; border-radius:0.5rem; font-size:0.8rem; cursor:pointer; margin-left:auto;">✕ Close</button>
-      </div>
-      <div id="viewReceiptPaper" style="padding:1.5rem;"></div>
     </div>
-  </div>
 
-  <script src="js/fund-dashboard.js"></script>
+    <script src="js/fund-dashboard.js"></script>
 </body>
 </html>
