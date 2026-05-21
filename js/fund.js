@@ -161,32 +161,70 @@ async function generateReceiptPdf() {
 
   const paper = document.getElementById('receiptPaper');
   
+  // Set dimensions to ensure no clipping
+  const width = paper.offsetWidth;
+  const height = paper.scrollHeight;
+
   // High-precision capture using a clone to prevent clipping
   const canvas = await html2canvas(paper, { 
     scale: 2, 
     useCORS: true,
     allowTaint: true,
     backgroundColor: '#ffffff',
+    width: width,
+    height: height,
+    windowWidth: width,
+    windowHeight: height,
     onclone: (clonedDoc) => {
       const clonedPaper = clonedDoc.getElementById('receiptPaper');
+      const clonedWrapper = clonedPaper.closest('.receipt-wrapper');
+      const clonedModal = clonedDoc.getElementById('receiptModal');
+      
+      // Remove all restrictive styles in the clone
+      if (clonedModal) {
+          clonedModal.style.position = 'static';
+          clonedModal.style.display = 'block';
+          clonedModal.style.height = 'auto';
+          clonedModal.style.overflow = 'visible';
+      }
+      
+      if (clonedWrapper) {
+          clonedWrapper.style.position = 'static';
+          clonedWrapper.style.height = 'auto';
+          clonedWrapper.style.overflow = 'visible';
+          clonedWrapper.style.margin = '0';
+          clonedWrapper.style.padding = '0';
+      }
+
       clonedPaper.style.height = 'auto';
       clonedPaper.style.overflow = 'visible';
-      clonedPaper.style.padding = '20px';
+      clonedPaper.style.display = 'block';
+      clonedPaper.style.margin = '0 auto';
     }
   });
+
   
   const imgData = canvas.toDataURL('image/png');
   const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF({ unit: 'px', format: 'a4' });
-  const pageW = pdf.internal.pageSize.getWidth();
+  
+  // Calculate dynamic dimensions to prevent page break clipping
   const margin = 20;
-  const printW = pageW - (margin * 2);
-  const ratio = printW / canvas.width;
-  const printH  = canvas.height * ratio;
+  const canvasW = canvas.width;
+  const canvasH = canvas.height;
+  
+  // We use the canvas width as the base for the PDF width (converted to px)
+  const pdfW = (canvasW / 2) + (margin * 2); 
+  const pdfH = (canvasH / 2) + (margin * 2);
 
-  pdf.addImage(imgData, 'PNG', margin, margin, printW, printH);
+  const pdf = new jsPDF({ 
+    unit: 'px', 
+    format: [pdfW, pdfH] 
+  });
+
+  pdf.addImage(imgData, 'PNG', margin, margin, canvasW/2, canvasH/2);
   return pdf;
 }
+
 
 async function downloadReceiptPdf() {
   toast('Preparing PDF...', 'info');
