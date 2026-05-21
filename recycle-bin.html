@@ -145,7 +145,8 @@
             if (error) {
                 alert('Restore failed: ' + error.message);
             } else {
-                SessionGuard.notify('Item restored successfully', 'success');
+                SessionGuard.notify.show('Item restored successfully', 'success');
+
                 loadDeleted(currentTable);
             }
         }

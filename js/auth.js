@@ -74,7 +74,8 @@ window.onerror = function(message, source, lineno, colno, error) {
     console.error('SSF Portal Error:', message, error);
     // Don't show technical jargon to users
     if (typeof SessionGuard !== 'undefined') {
-        SessionGuard.notify('A minor technical glitch occurred. Actions were logged.', 'warning');
+        SessionGuard.notify.show('A minor technical glitch occurred. Actions were logged.', 'warning');
+
     }
     return false;
 };

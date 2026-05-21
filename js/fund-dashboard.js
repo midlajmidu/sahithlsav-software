@@ -286,7 +286,8 @@ async function deleteReceipt(id) {
 
       if (error) throw error;
       
-      SessionGuard.notify('Receipt deleted permanently.', 'success');
+      SessionGuard.notify.show('Receipt deleted permanently.', 'success');
+
       
       // Invalidate cache so refresh shows correct data
       if (window.CacheManager) {
