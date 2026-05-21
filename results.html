@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SSF Chathamangalam Sector Sahitholsav - Results</title>
+  <meta name="description"
+    content="Official results portal of SSF Chathamangalam Sector Sahitholsav 33rd Edition. View and download program results instantly.">
+  <meta property="og:title" content="SSF Chathamangalam Sector Sahitholsav Results">
+  <meta property="og:description" content="View the latest SSF Sahitholsav results, download posters and share.">
+
+  <!-- Fonts: Cooper Black for SSF, Inter for body -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <link href="https://fonts.cdnfonts.com/css/cooper-black" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+
+  <style>
+    /* style.css handles CooperBlack global font now */
+
+
+    :root {
+      --maroon: #7B1113;
+      --maroon-dark: #5A0C0E;
+      --maroon-deep: #4A0A0C;
+      --gold: #F5C842;
+      --gold-light: #FFE082;
+      --cream: #FFF8E8;
+      --white: #FFFFFF;
+      --text: #1e293b;
+      --muted: #64748b;
+      --green: #2e7d32;
+      --green-light: #e8f5e9;
+      --border: #e2e8f0;
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+      --r-lg: 1.25rem;
+      --r-md: 0.75rem;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #f5f5f0;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    /* ═══════════════════════════════
+       HERO SECTION - Poster Inspired
+       ═══════════════════════════════ */
+    .hero {
+      background: linear-gradient(160deg, var(--maroon) 0%, var(--maroon-dark) 50%, var(--maroon-deep) 100%);
+      position: relative;
+      overflow: hidden;
+      padding: 2rem 1.5rem 5rem;
+      text-align: center;
+      min-height: 420px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Scattered educational icons pattern - inspired by poster background */
+    .hero::before {
+      content: '📐 📖 🖊️ 📚 🎓 ✏️ 📏 🔬 📝 🎨 🏆 📐 📖 🖊️ 📚 🎓 ✏️ 📏 🔬 📝 🎨 🏆 📐 📖 🖊️ 📚 🎓 ✏️ 🏆 📝 🎨 📏 🔬 📚 📐 📖 🖊️ 📚 🎓 ✏️';
+      position: absolute;
+      inset: 0;
+      font-size: 1.8rem;
+      line-height: 3.5rem;
+      letter-spacing: 1.5rem;
+      word-spacing: 1rem;
+      opacity: 0.06;
+      pointer-events: none;
+      overflow: hidden;
+      transform: rotate(-8deg) scale(1.3);
+    }
+
+    /* Decorative top badge */
+    .edition-badge {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1.5px solid rgba(255, 255, 255, 0.25);
+      border-radius: 2rem;
+      padding: 0.4rem 1.1rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      animation: fadeDown 0.6s ease;
+    }
+
+    .corner-branding {
+      position: absolute;
+      top: 1.5rem;
+      left: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      z-index: 100;
+      animation: fadeDown 0.5s ease;
+    }
+
+    .corner-logo {
+      height: 62px;
+      width: auto;
+      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
+    }
+
+    .theme-logo {
+      height: 70px;
+      width: auto;
+      margin-right: -0.1rem;
+    }
+
+
+
+    .corner-ssf {
+      font-family: 'Cooper Black', serif !important;
+      font-weight: 900;
+      font-size: 1.8rem;
+      color: var(--white);
+    }
+
+
+    .hero-main-img {
+      height: min(300px, 40vh);
+      width: auto;
+      margin-top: 4rem;
+      margin-bottom: 0.5rem;
+      filter: brightness(0) invert(1) drop-shadow(0 4px 20px rgba(255, 255, 255, 0.2));
+      animation: fadeDown 0.6s ease;
+    }
+
+    .hero-title .ssf-text {
+      font-family: 'Cooper Black', serif !important;
+      font-weight: 900;
+      font-size: 3.5rem;
+      letter-spacing: 0.02em;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      display: block;
+      line-height: 1;
+    }
+
+
+    .hero-subtitle {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 0.15rem;
+      animation: fadeDown 0.8s ease;
+    }
+
+    .hero-sector {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.7);
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      animation: fadeDown 0.85s ease;
+    }
+
+    .hero-tagline {
+      margin-top: 1.25rem;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--white);
+      animation: fadeDown 0.9s ease;
+    }
+
+    .hero-tagline span {
+      color: var(--gold);
+    }
+
+    /* Decorative divider */
+    .hero-divider {
+      width: 60px;
+      height: 3px;
+      background: var(--gold);
+      border-radius: 2px;
+      margin: 1rem auto 0;
+      animation: fadeDown 1s ease;
+    }
+
+    @keyframes fadeDown {
+      from {
+        opacity: 0;
+        transform: translateY(-18px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ═══════════════════════════════
+       RESULT VIEWER CARD
+       ═══════════════════════════════ */
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 0 1.25rem 3rem;
+    }
+
+    .result-viewer {
+      background: var(--white);
+      margin-top: -3rem;
+      position: relative;
+      z-index: 10;
+      border-radius: var(--r-lg);
+      box-shadow: var(--shadow);
+      padding: 2rem 1.75rem;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    .viewer-head {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--maroon);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    .viewer-head::after {
+      content: '';
+      flex: 1;
+      height: 1.5px;
+      background: linear-gradient(to right, var(--maroon), transparent);
+    }
+
+    /* Select groups */
+    .select-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .select-group label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.4rem;
+    }
+
+    .premium-select {
+      width: 100%;
+      padding: 0.9rem 1.15rem;
+      border: 2px solid var(--border);
+      border-radius: var(--r-md);
+      font-size: 1rem;
+      font-family: inherit;
+      background-color: #fafafa;
+      color: var(--text);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%237B1113" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
+      background-repeat: no-repeat;
+      background-position: right 0.9rem center;
+      background-size: 18px;
+    }
+
+    .premium-select:focus {
+      border-color: var(--maroon);
+      box-shadow: 0 0 0 4px rgba(123, 17, 19, 0.1);
+      background-color: var(--white);
+    }
+
+    .premium-select:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      background-color: #f1f5f9;
+    }
+
+    /* Result display area */
+    #resultDisplay {
+      margin-top: 1.5rem;
+      text-align: center;
+    }
+
+    #imageContainer {
+      position: relative;
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+      display: none;
+      background: var(--border);
+    }
+
+    #resultImage {
+      width: 100%;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+    }
+
+    .btn-action {
+      padding: 0.7rem 1.25rem;
+      border: 2px solid var(--maroon);
+      color: var(--maroon);
+      background: none;
+      border-radius: var(--r-md);
+      font-weight: 700;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .btn-action:hover {
+      background: var(--maroon);
+      color: var(--white);
+    }
+
+    /* Empty state */
+    .state-box {
+      padding: 2rem 1rem;
+      border: 2px dashed var(--border);
+      border-radius: var(--r-md);
+      color: var(--muted);
+    }
+
+    .state-box .state-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .state-box p {
+      font-size: 0.9rem;
+    }
+
+    .state-pending {
+      border-color: rgba(245, 158, 11, 0.3);
+      background: rgba(245, 158, 11, 0.04);
+      color: #b45309;
+    }
+
+    /* Loader spinner */
+    .mini-spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid var(--border);
+      border-top-color: var(--maroon);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto 0.75rem;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ═══════════════════════════════
+       QUICK LINKS BAR
+       ═══════════════════════════════ */
+    .quick-links {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      padding: 1.5rem 1rem;
+      flex-wrap: wrap;
+    }
+
+    .quick-link {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.6rem 1.15rem;
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: 2rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text);
+      text-decoration: none;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .quick-link:hover {
+      border-color: var(--maroon);
+      color: var(--maroon);
+      box-shadow: 0 4px 12px rgba(123, 17, 19, 0.1);
+      transform: translateY(-1px);
+    }
+
+    /* ═══════════════════════════════
+       FOOTER
+       ═══════════════════════════════ */
+    .site-footer {
+      background: var(--maroon-deep);
+      color: rgba(255, 255, 255, 0.75);
+      text-align: center;
+      padding: 2rem 1.5rem;
+    }
+
+    .footer-logo {
+      height: 48px;
+      margin-bottom: 0.75rem;
+      filter: brightness(10);
+    }
+
+    .footer-brand {
+      font-family: 'Cooper Black', sans-serif;
+      color: var(--white);
+      font-size: 1.1rem;
+      font-weight: 900;
+    }
+
+    .footer-sub {
+      font-size: 0.78rem;
+      margin-top: 0.25rem;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .footer-copy {
+      font-size: 0.72rem;
+      margin-top: 1rem;
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    /* ═══════════════════════════════
+       FULLSCREEN MODAL
+       ═══════════════════════════════ */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 9999;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 1rem;
+      overflow-y: auto;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-inner {
+      max-width: 95vw;
+      width: 100%;
+      margin: auto;
+    }
+
+    .modal-bar {
+      background: var(--white);
+      border-radius: var(--r-lg) var(--r-lg) 0 0;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-bar h3 {
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+
+    .modal-close {
+      background: #fee2e2;
+      border: none;
+      color: #ef4444;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-img-wrap {
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 0 0 var(--r-lg) var(--r-lg);
+      padding: 0;
+    }
+
+    .modal-img-wrap img {
+      width: 100%;
+      max-height: 85vh;
+      object-fit: contain;
+      display: block;
+      border-radius: 0 0 var(--r-lg) var(--r-lg);
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .hero {
+        padding: 1.5rem 1rem 4.5rem;
+        min-height: 340px;
+      }
+
+      .hero-title .ssf-text {
+        font-size: 2.4rem;
+      }
+
+      .hero-subtitle {
+        font-size: 0.85rem;
+      }
+
+      .result-viewer {
+        padding: 1.5rem 1.25rem;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+      }
+
+      .btn-action {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ═══ HERO SECTION ═══ -->
+  <header class="hero">
+    <div class="corner-branding">
+      <a href="index.html" style="display:flex; align-items:center; gap:0.75rem; text-decoration:none;">
+        <img src="images/theme sahi cgm.png" alt="Theme Logo" class="theme-logo">
+        <img src="images/logo.png" alt="SSF Logo" class="corner-logo">
+      </a>
+    </div>
+
+
+
+    <div class="edition-badge">✦ 33rd Edition ✦</div>
+    <img src="images/sector sahi  vertical .png" alt="Sahitholsav" class="hero-main-img">
+    <div class="hero-tagline">📋 <span>Results</span> Portal</div>
+    <div class="hero-divider"></div>
+  </header>
+
+
+
+  <!-- ═══ MAIN CONTENT ═══ -->
+  <main class="container">
+    <div class="result-viewer">
+      <div class="viewer-head">🏆 View Results</div>
+
+      <div class="select-group">
+        <label for="categorySelect">1. Choose Category</label>
+        <select id="categorySelect" class="premium-select">
+          <option value="">Loading categories...</option>
+        </select>
+      </div>
+
+      <div class="select-group">
+        <label for="programSelect">2. Choose Program</label>
+        <select id="programSelect" class="premium-select" disabled>
+          <option value="">Select a category first</option>
+        </select>
+      </div>
+
+      <!-- Result Display -->
+      <div id="resultDisplay">
+        <div id="loaderState" style="display:none; padding: 2rem;">
+          <div class="mini-spinner"></div>
+          <p style="color:var(--muted); font-size:0.9rem;">Loading result...</p>
+        </div>
+
+        <div id="emptyState" class="state-box">
+          <div class="state-icon">🏆</div>
+          <p>Select a category and program above to view the result.</p>
+        </div>
+
+        <div id="pendingState" class="state-box state-pending" style="display:none;">
+          <div class="state-icon">⏱️</div>
+          <p>Result for this program has not been published yet.</p>
+        </div>
+
+        <div id="imageContainer">
+          <img id="resultImage" src="" alt="Program Result Poster">
+          <div class="action-buttons" id="actionButtons">
+            <button class="btn-action" onclick="downloadPoster()">
+              <span>⬇️</span> Download
+            </button>
+            <button class="btn-action" onclick="openFullscreen()">
+              <span>🔍</span> Fullscreen
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- ═══ TEAM STANDINGS CTA ═══ -->
+    <div class="standings-cta" style="margin-top:1.5rem;">
+      <div class="standings-cta-card">
+        <div class="cta-icon">🏆</div>
+        <h3>TEAM STANDINGS</h3>
+        <p>View the latest team point table</p>
+        <a href="team-score.html" class="btn-cta">View Point Table →</a>
+      </div>
+    </div>
+  </main>
+
+  <link rel="stylesheet" href="css/team-score.css">
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="site-footer">
+    <img src="images/logo.png" alt="SSF" class="footer-logo">
+    <div class="footer-brand"><span class="ssf-font">SSF</span> Chathamangalam Sector</div>
+    <div class="footer-sub">Sahitholsav 2026 — 33rd Edition</div>
+    <div class="footer-sub" style="opacity: 0.6; margin-top: 0.1rem;">ssfchathamangalam@gmail.com</div>
+    <div class="footer-copy">© 2026 <span class="ssf-font" style="font-size: 0.9em;">SSF</span> Chathamangalam Sector.
+      All rights reserved.</div>
+  </footer>
+
+  <!-- ═══ FULLSCREEN MODAL ═══ -->
+  <div id="fullscreenModal" class="modal-overlay" onclick="if(event.target===this) closeFullscreen()">
+    <div class="modal-inner">
+      <div class="modal-bar">
+        <h3 id="modalProgramName">Program Name</h3>
+        <button class="modal-close" onclick="closeFullscreen()">✕</button>
+      </div>
+      <div class="modal-img-wrap">
+        <img id="modalFullImage" src="" alt="Full size result">
+      </div>
+    </div>
+  </div>
+
+  <script src="js/results.js"></script>
+</body>
+
+</html>

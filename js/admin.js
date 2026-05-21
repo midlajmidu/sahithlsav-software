@@ -7,6 +7,12 @@ let currentUploadProgramId = null;
 let optimizedFileToUpload = null;
 let currentOldPosterUrl = null;
 
+// Pagination state
+const PAGE_SIZE = 10;
+let currentPage = 1;
+let filteredPrograms = [];
+
+
 document.addEventListener("DOMContentLoaded", async () => {
     const session = await checkAuth(true);
     if (!session) return;
@@ -41,7 +47,7 @@ async function loadPrograms() {
             .order("id");
         if (error) throw error;
         allPrograms = data || [];
-        renderTable();
+        applyFilters(); // Setup filtered list and render first page
     } catch (err) {
         ui.toast(err.message, "error");
     } finally {
@@ -49,34 +55,44 @@ async function loadPrograms() {
     }
 }
 
-function renderTable() {
-    const tbody = document.getElementById("programsTableBody");
+function applyFilters() {
     const searchTerm = document.getElementById("searchInput").value.toLowerCase();
     const catFilter = document.getElementById("categoryFilter").value;
 
-    let filtered = allPrograms.filter(p => {
+    filteredPrograms = allPrograms.filter(p => {
         let matchName = p.program_name.toLowerCase().includes(searchTerm);
         let matchCat = catFilter ? p.category_id == catFilter : true;
         return matchName && matchCat;
     });
 
+    currentPage = 1;
+    renderTable();
+}
+
+
+function renderTable() {
+    const tbody = document.getElementById("programsTableBody");
+    const startIndex = (currentPage - 1) * PAGE_SIZE;
+    const endIndex = startIndex + PAGE_SIZE;
+    const pageData = filteredPrograms.slice(startIndex, endIndex);
+
     tbody.innerHTML = "";
 
-    if (filtered.length === 0) {
+    if (filteredPrograms.length === 0) {
         tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No programs found</td></tr>`;
+        updateTableInfo(0, 0, 0);
+        renderPagination(0);
         return;
     }
 
-    filtered.forEach(p => {
+    pageData.forEach(p => {
         const hasPoster = !!p.poster_url;
         const statusBadge = hasPoster 
             ? (p.published ? '<span class="badge badge-success">Published</span>' : '<span class="badge badge-warning">Uploaded (Unpublished)</span>')
             : '<span class="badge">Pending</span>';
 
-        // Escape program name single quotes for onclick event
         const escapedName = p.program_name.replace(/'/g, "\\'");
 
-        // Render cell
         const tr = document.createElement("tr");
         tr.innerHTML = `
             <td><input type="checkbox" class="program-checkbox" value="${p.id}"></td>
@@ -96,11 +112,63 @@ function renderTable() {
         `;
         tbody.appendChild(tr);
     });
+
+    updateTableInfo(startIndex + 1, Math.min(endIndex, filteredPrograms.length), filteredPrograms.length);
+    renderPagination(filteredPrograms.length);
 }
 
+function updateTableInfo(start, end, total) {
+    const info = document.getElementById("tableInfo");
+    if (total === 0) {
+        info.textContent = "Showing 0 to 0 of 0 entries";
+    } else {
+        info.textContent = `Showing ${start} to ${end} of ${total} entries`;
+    }
+}
+
+function renderPagination(totalEntries) {
+    const totalPages = Math.ceil(totalEntries / PAGE_SIZE);
+    const container = document.getElementById("pagination");
+    container.innerHTML = "";
+
+    if (totalPages <= 1) return;
+
+    // Previous button
+    const prevBtn = document.createElement("button");
+    prevBtn.innerHTML = "◀";
+    prevBtn.disabled = currentPage === 1;
+    prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; renderTable(); } };
+    container.appendChild(prevBtn);
+
+    // Page numbers
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+            const btn = document.createElement("button");
+            btn.textContent = i;
+            if (i === currentPage) btn.classList.add("active");
+            btn.onclick = () => { currentPage = i; renderTable(); };
+            container.appendChild(btn);
+        } else if (i === currentPage - 2 || i === currentPage + 2) {
+            const dot = document.createElement("span");
+            dot.textContent = "...";
+            dot.style.padding = "0 0.5rem";
+            container.appendChild(dot);
+        }
+    }
+
+    // Next button
+    const nextBtn = document.createElement("button");
+    nextBtn.innerHTML = "▶";
+    nextBtn.disabled = currentPage === totalPages;
+    nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; renderTable(); } };
+    container.appendChild(nextBtn);
+}
+
+
 function setupEventListeners() {
-    document.getElementById("searchInput").addEventListener("input", renderTable);
-    document.getElementById("categoryFilter").addEventListener("change", renderTable);
+    document.getElementById("searchInput").addEventListener("input", applyFilters);
+    document.getElementById("categoryFilter").addEventListener("change", applyFilters);
+
     
     document.getElementById("selectAll").addEventListener("change", (e) => {
         document.querySelectorAll(".program-checkbox").forEach(cb => {

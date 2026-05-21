@@ -4,6 +4,11 @@
 let currentUpdateId = null;
 let allPublishedUpdates = [];
 
+// Pagination for updates pills
+const UPDATE_PAGE_SIZE = 12;
+let currentUpdatePage = 1;
+
+
 document.addEventListener('DOMContentLoaded', init);
 
 async function init() {
@@ -177,9 +182,15 @@ function renderPreviousUpdates(updates) {
     }
 
     section.style.display = 'block';
+    
+    // Paginate updates
+    const start = (currentUpdatePage - 1) * UPDATE_PAGE_SIZE;
+    const end = start + UPDATE_PAGE_SIZE;
+    const pageUpdates = updates.slice(start, end);
+
     grid.innerHTML = '';
 
-    updates.forEach(update => {
+    pageUpdates.forEach(update => {
         const pill = document.createElement('button');
         pill.className = `update-pill${update.id === currentUpdateId ? ' active' : ''}`;
         pill.textContent = update.title;
@@ -189,7 +200,50 @@ function renderPreviousUpdates(updates) {
         });
         grid.appendChild(pill);
     });
+
+    // Add pagination controls if needed
+    renderUpdatesPagination(updates.length);
 }
+
+function renderUpdatesPagination(total) {
+    const totalPages = Math.ceil(total / UPDATE_PAGE_SIZE);
+    if (totalPages <= 1) {
+        const existing = document.getElementById('updatesPagination');
+        if (existing) existing.remove();
+        return;
+    }
+
+    let pagContainer = document.getElementById('updatesPagination');
+    if (!pagContainer) {
+        pagContainer = document.createElement('div');
+        pagContainer.id = 'updatesPagination';
+        pagContainer.className = 'pagination-container';
+        pagContainer.style.marginTop = '1.5rem';
+        pagContainer.style.justifyContent = 'center';
+        document.getElementById('updatesSection').appendChild(pagContainer);
+    }
+
+    pagContainer.innerHTML = '';
+
+    const prev = document.createElement('button');
+    prev.textContent = '◀';
+    prev.disabled = currentUpdatePage === 1;
+    prev.onclick = () => { if (currentUpdatePage > 1) { currentUpdatePage--; renderPreviousUpdates(allPublishedUpdates); } };
+    pagContainer.appendChild(prev);
+
+    const info = document.createElement('span');
+    info.textContent = `Page ${currentUpdatePage} of ${totalPages}`;
+    info.style.padding = '0 1rem';
+    info.style.fontSize = '0.9rem';
+    pagContainer.appendChild(info);
+
+    const next = document.createElement('button');
+    next.textContent = '▶';
+    next.disabled = currentUpdatePage === totalPages;
+    next.onclick = () => { if (currentUpdatePage < totalPages) { currentUpdatePage++; renderPreviousUpdates(allPublishedUpdates); } };
+    pagContainer.appendChild(next);
+}
+
 
 /**
  * Highlight the active pill

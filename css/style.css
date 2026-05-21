@@ -655,3 +655,60 @@ td {
   background: var(--primary);
   transition: width 0.5s ease;
 }
+
+/* ── Pagination & Table Footer ── */
+.table-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border);
+  background: #fafafa;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+.pagination-container {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.pagination-container button {
+  min-width: 34px;
+  height: 34px;
+  border: 1px solid var(--border);
+  background: var(--white);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pagination-container button:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.pagination-container button.active {
+  background: var(--primary);
+  color: var(--white);
+  border-color: var(--primary);
+}
+
+.pagination-container button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .table-footer {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+}
+

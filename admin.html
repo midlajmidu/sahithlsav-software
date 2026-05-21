@@ -48,7 +48,7 @@
                 <h1 class="page-title">Manage Results</h1>
                 <div style="display:flex; gap:1rem;">
                     <a href="fund.html" target="_blank" class="btn-primary" style="background:var(--secondary); width:auto; padding:0.5rem 1rem; font-size:0.875rem;">📋 Fund Entry Form</a>
-                    <a href="index.html" target="_blank" class="btn-primary" style="background:var(--info); width:auto; padding:0.5rem 1rem; font-size:0.875rem;">🌐 View Live Site</a>
+                    <a href="results.html" target="_blank" class="btn-primary" style="background:var(--info); width:auto; padding:0.5rem 1rem; font-size:0.875rem;">🌐 View Results Portal</a>
                 </div>
             </div>
 
@@ -113,7 +113,18 @@
                         <!-- Populated by JS -->
                     </tbody>
                 </table>
+
+                <!-- Pagination footer inside the panel -->
+                <div class="table-footer">
+                    <div id="tableInfo" style="font-size: 0.85rem; color: var(--text-muted);">
+                        Showing 0 to 0 of 0 entries
+                    </div>
+                    <div id="pagination" class="pagination-container">
+                        <!-- JS injected -->
+                    </div>
+                </div>
             </div>
+
         </main>
     </div>
 
