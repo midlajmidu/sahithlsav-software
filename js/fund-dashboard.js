@@ -178,8 +178,9 @@ function handleSearch(query) {
    VIEW RECEIPT MODAL
    ══════════════════════════════ */
 function viewReceipt(id) {
-  const r = allReceipts.find(x => x.id === id);
+  const r = allReceipts.find(x => String(x.id) === String(id));
   if (!r) return;
+
 
   const paper = document.getElementById('viewReceiptPaper');
   paper.innerHTML = `
@@ -265,12 +266,18 @@ async function deleteReceipt(id) {
       
       SessionGuard.notify('Receipt deleted permanently.', 'success');
       
+      // Invalidate cache so refresh shows correct data
+      if (window.CacheManager) {
+        CacheManager.invalidate(['fund']);
+      }
+      
       // Update local state
-      allReceipts      = allReceipts.filter(r => r.id !== id);
-      filteredReceipts = filteredReceipts.filter(r => r.id !== id);
+      allReceipts      = allReceipts.filter(r => String(r.id) !== String(id));
+      filteredReceipts = filteredReceipts.filter(r => String(r.id) !== String(id));
       
       computeStats(allReceipts);
       renderTable();
+
   } catch (err) {
       toast(err.message, 'error');
   } finally {
