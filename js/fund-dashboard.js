@@ -84,14 +84,25 @@ function computeStats(records) {
 /* ══════════════════════════════
    CHARTS
    ══════════════════════════════ */
+let paymentChartInstance = null;
+
 function buildCharts(records) {
+  // Destroy existing chart if any
+  if (paymentChartInstance) {
+    paymentChartInstance.destroy();
+  }
+
   // ── Payment method pie ──
   const pmMap = {};
   records.forEach(r => {
     pmMap[r.payment_method] = (pmMap[r.payment_method] || 0) + Number(r.amount);
   });
+  
+  const ctx = document.getElementById('paymentChart');
+  if (!ctx) return;
+
   const pColors = ['#2e7d32','#2bbbad','#f59e0b','#ef4444','#6366f1','#ec4899','#14b8a6'];
-  new Chart(document.getElementById('paymentChart'), {
+  paymentChartInstance = new Chart(ctx, {
     type: 'pie',
     data: {
       labels: Object.keys(pmMap),
@@ -100,6 +111,7 @@ function buildCharts(records) {
     options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
   });
 }
+
 
 /* ══════════════════════════════
    HISTORY TABLE
@@ -276,7 +288,9 @@ async function deleteReceipt(id) {
       filteredReceipts = filteredReceipts.filter(r => String(r.id) !== String(id));
       
       computeStats(allReceipts);
+      buildCharts(allReceipts);
       renderTable();
+
 
   } catch (err) {
       toast(err.message, 'error');
