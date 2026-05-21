@@ -14,16 +14,15 @@ document.addEventListener('DOMContentLoaded', init);
 async function init() {
     showLoading();
     try {
-        // 1. Fetch ALL published updates (for the Previous Updates pills)
-        const { data: updates, error: updErr } = await supabaseClient
-            .from('score_updates')
-            .select('*')
-            .eq('published', true)
-            .order('created_at', { ascending: false });
-
-        if (updErr) throw updErr;
-
-        allPublishedUpdates = updates || [];
+        // 1. Fetch published updates with cache (5 min TTL)
+        allPublishedUpdates = await getCachedData('scores_updates_cache', async () => {
+            const { data } = await supabaseClient
+                .from('score_updates')
+                .select('id, title, created_at, published') // Minimal fields
+                .eq('published', true)
+                .order('created_at', { ascending: false });
+            return data || [];
+        }, 5);
 
         if (allPublishedUpdates.length === 0) {
             showEmpty('No standings have been published yet.');
@@ -35,7 +34,7 @@ async function init() {
         const latestUpdate = allPublishedUpdates[0];
         currentUpdateId = latestUpdate.id;
 
-        // 3. Load and display standings for the latest update
+        // 3. Load standings (caching inside loadStandings)
         await loadStandings(latestUpdate);
 
         // 4. Render the previous-updates pills
@@ -47,6 +46,7 @@ async function init() {
     }
 }
 
+
 /**
  * Fetch score_details for a given update and render team cards
  */
@@ -55,13 +55,15 @@ async function loadStandings(update) {
     currentUpdateId = update.id;
 
     try {
-        const { data: teams, error } = await supabaseClient
-            .from('score_details')
-            .select('*')
-            .eq('update_id', update.id)
-            .order('points', { ascending: false });
+        const teams = await getCachedData(`standings_${update.id}`, async () => {
+            const { data } = await supabaseClient
+                .from('score_details')
+                .select('team_name, points, rank') // Minimal fields
+                .eq('update_id', update.id)
+                .order('points', { ascending: false });
+            return data || [];
+        }, 5);
 
-        if (error) throw error;
 
         if (!teams || teams.length === 0) {
             showEmpty('No team scores available for this update.');

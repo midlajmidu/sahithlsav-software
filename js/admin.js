@@ -24,7 +24,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 async function loadFilters() {
-    const { data: categories } = await supabaseClient.from("categories").select("*");
+    const categories = await getCachedData('cat_cache', async () => {
+        const { data } = await supabaseClient.from("categories").select("id, name").order("id");
+        return data || [];
+    }, 60);
+
     const filter = document.getElementById("categoryFilter");
     
     if (categories) {
@@ -38,12 +42,13 @@ async function loadFilters() {
     }
 }
 
+
 async function loadPrograms() {
     showLoader("Loading programs...");
     try {
         const { data, error } = await supabaseClient
             .from("programs")
-            .select("*")
+            .select("id, program_name, category_id, published, poster_url")
             .order("id");
         if (error) throw error;
         allPrograms = data || [];

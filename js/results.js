@@ -20,9 +20,11 @@ let currentResult = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
-        // Fetch categories first
-        const { data: categories } = await supabaseClient.from("categories").select("*").order("id");
-        allCategories = categories || [];
+        // Fetch categories with caching (1 hour TTL)
+        allCategories = await getCachedData('cat_cache', async () => {
+            const { data } = await supabaseClient.from("categories").select("id, name").order("id");
+            return data || [];
+        }, 60);
         
         elements.category.innerHTML = '<option value="">Select Category</option>';
         allCategories.forEach(cat => {
@@ -32,18 +34,20 @@ document.addEventListener("DOMContentLoaded", async () => {
             elements.category.appendChild(opt);
         });
 
-        // Preload general valid programs (published only)
-        const { data: programs } = await supabaseClient
-            .from("programs")
-            .select("*")
-            .order("program_name");
-            
-        allPrograms = programs || [];
+        // Preload valid programs list (published only, minimal fields) - 15 min TTL
+        allPrograms = await getCachedData('prog_list_cache', async () => {
+            const { data } = await supabaseClient
+                .from("programs")
+                .select("id, program_name, category_id, published") // No poster_url here to keep payload small
+                .order("program_name");
+            return data || [];
+        }, 15);
 
     } catch (err) {
         console.error("Error loading initial data", err);
         elements.category.innerHTML = '<option value="">Error loading categories</option>';
     }
+
     
     // Listeners
     elements.category.addEventListener("change", handleCategoryChange);
@@ -82,7 +86,7 @@ function handleCategoryChange(e) {
     elements.program.disabled = false;
 }
 
-function handleProgramChange(e) {
+async function handleProgramChange(e) {
     const progId = e.target.value;
     
     resetDisplay();
@@ -95,23 +99,30 @@ function handleProgramChange(e) {
     elements.emptyState.style.display = 'none';
     elements.loaderState.style.display = 'block';
     
-    // Find program
-    const program = allPrograms.find(p => p.id == progId);
-    currentResult = program;
-    
-    // Simulate slight loading feel for premium effect
-    setTimeout(() => {
+    // Fetch full detail for the specific program on-demand (poster_url is heavy)
+    try {
+        const { data: program, error } = await supabaseClient
+            .from("programs")
+            .select("id, program_name, poster_url, published")
+            .eq('id', progId)
+            .single();
+
         elements.loaderState.style.display = 'none';
         
-        if (program && program.published && program.poster_url) {
+        if (!error && program && program.published && program.poster_url) {
             elements.resultImage.src = program.poster_url;
             elements.imageContainer.style.display = 'block';
+            currentResult = program;
         } else {
             elements.pendingState.style.display = 'block';
             currentResult = null;
         }
-    }, 400);
+    } catch (e) {
+        elements.loaderState.style.display = 'none';
+        elements.pendingState.style.display = 'block';
+    }
 }
+
 
 function resetDisplay() {
     elements.emptyState.style.display = 'none';
