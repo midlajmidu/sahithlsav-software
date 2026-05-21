@@ -34,8 +34,8 @@ async function loadFilters() {
 
     const filter = document.getElementById("categoryFilter");
     
-    if (categories) {
-        categories.forEach(c => {
+    if (data) {
+        data.forEach(c => {
             categoryMap[c.id] = c.name;
             const option = document.createElement("option");
             option.value = c.id;
@@ -44,6 +44,7 @@ async function loadFilters() {
         });
     }
 }
+
 
 
 async function loadPrograms() {
