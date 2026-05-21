@@ -11,18 +11,21 @@ async function loadDashboardData() {
   showLoader('Loading dashboard...');
 
   try {
-    // Fetch in parallel for speed
-    const [catRes, progRes, fundRes] = await Promise.all([
-      supabaseClient.from('categories').select('*'),
-      supabaseClient.from('programs').select('*'),
-      supabaseClient.from('fund_receipts').select('amount'),
-    ]);
+    const categories = await fetchWithCache('dashboard_cat', async () => {
+        const { data } = await supabaseClient.from('categories').select('*');
+        return data || [];
+    }, 2);
 
-    if (catRes.error || progRes.error || fundRes.error) throw (catRes.error || progRes.error || fundRes.error);
+    const programs = await fetchWithCache('dashboard_prog', async () => {
+        const { data } = await supabaseClient.from('programs').select('*');
+        return data || [];
+    }, 2);
 
-    const categories = catRes.data  || [];
-    const programs   = progRes.data || [];
-    const funds      = fundRes.data || [];
+    const funds = await fetchWithCache('dashboard_fund', async () => {
+        const { data } = await supabaseClient.from('fund_receipts').select('amount');
+        return data || [];
+    }, 1);
+
 
     const totalCategories  = categories.length;
     const totalPrograms    = programs.length;

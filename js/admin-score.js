@@ -400,6 +400,8 @@ async function handleSaveScores() {
         }
 
         showToast('Scores saved successfully', 'success');
+        CacheManager.invalidate(['score']);
+
 
         // Reload to get fresh IDs
         await loadScoresForUpdate(selectedUpdateId);
@@ -450,6 +452,8 @@ async function handlePublish() {
         }
 
         showToast(`Update ${action}ed successfully`, 'success');
+        CacheManager.invalidate(['score']);
+
         await loadUpdates();
 
     } catch (err) {
@@ -495,6 +499,8 @@ async function handleDelete() {
         }
 
         showToast('Update deleted successfully', 'success');
+        CacheManager.invalidate(['score']);
+
         selectedUpdateId = null;
         clearEditor();
         await loadUpdates();

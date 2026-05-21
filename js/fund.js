@@ -345,6 +345,10 @@ async function handleFormSubmit(e) {
     };
 
     toast('Collection saved!', 'success');
+    if (window.CacheManager) {
+        CacheManager.invalidate(['fund']);
+    }
+
 
   } catch (err) {
     console.error(err);

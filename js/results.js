@@ -20,11 +20,11 @@ let currentResult = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
-        // Fetch categories with caching (1 hour TTL)
-        allCategories = await getCachedData('cat_cache', async () => {
+        // Fetch categories with caching (5 min TTL)
+        allCategories = await fetchWithCache('cat_cache', async () => {
             const { data } = await supabaseClient.from("categories").select("id, name").order("id");
             return data || [];
-        }, 60);
+        }, 5);
         
         elements.category.innerHTML = '<option value="">Select Category</option>';
         allCategories.forEach(cat => {
@@ -34,16 +34,17 @@ document.addEventListener("DOMContentLoaded", async () => {
             elements.category.appendChild(opt);
         });
 
-        // Preload valid programs list (published only, minimal fields) - 15 min TTL
-        allPrograms = await getCachedData('prog_list_cache', async () => {
+        // Preload valid programs list (published only) - 5 min TTL
+        allPrograms = await fetchWithCache('prog_cache', async () => {
             const { data } = await supabaseClient
                 .from("programs")
-                .select("id, program_name, category_id, published") // No poster_url here to keep payload small
+                .select("id, program_name, category_id, published")
                 .order("program_name");
             return data || [];
-        }, 15);
+        }, 5);
 
     } catch (err) {
+
         console.error("Error loading initial data", err);
         elements.category.innerHTML = '<option value="">Error loading categories</option>';
     }

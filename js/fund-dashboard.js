@@ -50,16 +50,20 @@ function amountToWords(num) {
    LOAD ALL RECEIPTS
    ══════════════════════════════ */
 async function loadAllReceipts() {
-  const { data, error } = await supabaseClient
-    .from('fund_receipts')
-    .select('*')
-    .order('created_at', { ascending: false });
+  const data = await fetchWithCache('fund_cache', async () => {
+    const { data: res, error } = await supabaseClient
+      .from('fund_receipts')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return res || [];
+  }, 2);
 
-  if (error) { toast('Failed to load receipts: ' + error.message, 'error'); return; }
   allReceipts     = data || [];
   filteredReceipts = [...allReceipts];
   return allReceipts;
 }
+
 
 /* ══════════════════════════════
    COMPUTE STATS

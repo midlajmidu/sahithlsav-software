@@ -24,10 +24,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 async function loadFilters() {
-    const categories = await getCachedData('cat_cache', async () => {
-        const { data } = await supabaseClient.from("categories").select("id, name").order("id");
-        return data || [];
-    }, 60);
+    // Admin always needs fresh categories for accurate mapping
+    const categories = await supabaseClient.from("categories").select("id, name").order("id");
+    const data = categories.data || [];
+    
+    // We update the cache too so frontend stays synced
+    CacheManager.set('cat_cache', data, 5);
+
 
     const filter = document.getElementById("categoryFilter");
     
@@ -46,13 +49,20 @@ async function loadFilters() {
 async function loadPrograms() {
     showLoader("Loading programs...");
     try {
+        // ALWAYS fetch fresh in Admin
         const { data, error } = await supabaseClient
             .from("programs")
             .select("id, program_name, category_id, published, poster_url")
             .order("id");
+            
         if (error) throw error;
         allPrograms = data || [];
+        
+        // Sync cache
+        CacheManager.set('prog_cache', allPrograms, 5);
+        
         applyFilters(); // Setup filtered list and render first page
+
     } catch (err) {
         ui.toast(err.message, "error");
     } finally {
@@ -230,7 +240,9 @@ async function handleDeleteProgram(id, name) {
         }
         
         SessionGuard.notify('Program deleted permanently.', 'success');
+        CacheManager.invalidate(['program']); // Invalidate cache
         await loadPrograms();
+
     } catch (e) {
         ui.toast(e.message, "error");
     } finally {
@@ -267,7 +279,9 @@ async function bulkAction(action) {
             await supabaseClient.from("programs").update({ published: publishState }).eq("id", id);
         }
         ui.toast("Bulk action completed.");
+        CacheManager.invalidate(['program']);
         await loadPrograms();
+
     } catch (e) {
         ui.toast("Bulk action failed.", "error");
     } finally {
@@ -281,6 +295,8 @@ async function togglePublish(id, newState) {
         const { error } = await supabaseClient.from("programs").update({ published: newState }).eq("id", id);
         if (error) throw error;
         ui.toast("Program status updated.");
+        CacheManager.invalidate(['program']);
+
         
         // update local state
         const p = allPrograms.find(p => p.id == id);
@@ -411,6 +427,8 @@ async function uploadFinalPoster() {
         progressBar.style.width = "100%";
         
         ui.toast("Uploaded successfully!");
+        CacheManager.invalidate(['results']); 
+
         setTimeout(() => {
             closeUploadModal();
             loadPrograms(); // refresh

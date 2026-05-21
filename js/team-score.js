@@ -14,15 +14,15 @@ document.addEventListener('DOMContentLoaded', init);
 async function init() {
     showLoading();
     try {
-        // 1. Fetch published updates with cache (5 min TTL)
-        allPublishedUpdates = await getCachedData('scores_updates_cache', async () => {
+        // 1. Fetch published updates with cache (2 min TTL)
+        allPublishedUpdates = await fetchWithCache('scores_updates_cache', async () => {
             const { data } = await supabaseClient
                 .from('score_updates')
-                .select('id, title, created_at, published') // Minimal fields
+                .select('id, title, created_at, published')
                 .eq('published', true)
                 .order('created_at', { ascending: false });
             return data || [];
-        }, 5);
+        }, 2);
 
         if (allPublishedUpdates.length === 0) {
             showEmpty('No standings have been published yet.');
@@ -30,14 +30,10 @@ async function init() {
             return;
         }
 
-        // 2. Select the latest published update
         const latestUpdate = allPublishedUpdates[0];
         currentUpdateId = latestUpdate.id;
 
-        // 3. Load standings (caching inside loadStandings)
         await loadStandings(latestUpdate);
-
-        // 4. Render the previous-updates pills
         renderPreviousUpdates(allPublishedUpdates);
 
     } catch (err) {
@@ -46,23 +42,20 @@ async function init() {
     }
 }
 
-
-/**
- * Fetch score_details for a given update and render team cards
- */
 async function loadStandings(update) {
     showLoading();
     currentUpdateId = update.id;
 
     try {
-        const teams = await getCachedData(`standings_${update.id}`, async () => {
+        const teams = await fetchWithCache(`score_cache_${update.id}`, async () => {
             const { data } = await supabaseClient
                 .from('score_details')
-                .select('team_name, points, rank') // Minimal fields
+                .select('team_name, points, rank')
                 .eq('update_id', update.id)
                 .order('points', { ascending: false });
             return data || [];
-        }, 5);
+        }, 2);
+
 
 
         if (!teams || teams.length === 0) {
