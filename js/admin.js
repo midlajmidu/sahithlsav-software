@@ -122,9 +122,10 @@ function renderTable() {
                 <button onclick="openUploadModal(${p.id}, '${escapedName}', '${p.poster_url || ''}')" class="icon-btn" title="Upload/Replace Poster">📁</button>
                 ${hasPoster ? `
                     <button onclick="togglePublish(${p.id}, ${!p.published})" class="icon-btn" title="${p.published ? 'Unpublish' : 'Publish'}">${p.published ? '🚫' : '✅'}</button>
+                    <button onclick="handleDeletePoster(${p.id}, '${escapedName}', '${p.poster_url}')" class="icon-btn" title="Delete Result Image" style="color:var(--danger)">🗑️</button>
                     ` : ''}
-                <button onclick="handleDeleteProgram(${p.id}, '${escapedName}')" class="icon-btn" title="Delete" style="color:var(--danger)">🗑️</button>
             </td>
+
         `;
         tbody.appendChild(tr);
     });
@@ -226,22 +227,32 @@ function setupEventListeners() {
     // Add Delete icon handling in renderTable or similar
 }
 
-async function handleDeleteProgram(id, name) {
-    const isConfirmed = await SessionGuard.confirmAction('Delete Program', `Are you sure you want to permanently delete "${name}"? This cannot be undone.`);
+async function handleDeletePoster(id, name, url) {
+    const isConfirmed = await SessionGuard.confirmAction('Delete Result Image', `Are you sure you want to delete the result image for "${name}"? This will set the status back to Pending.`);
     if (!isConfirmed) return;
 
-    showLoader("Deleting program...");
+    showLoader("Deleting result image...");
     try {
-        const { error } = await supabaseClient.from("programs").delete().eq("id", id);
+        // 1. Delete from storage if URL exists
+        if (url) {
+            const path = url.split('/').pop();
+            await supabaseClient.storage.from("results-posters").remove([path]);
+        }
+
+        // 2. Update database record
+        const { error } = await supabaseClient
+            .from("programs")
+            .update({ poster_url: null, published: false })
+            .eq("id", id);
         
         if (error) throw error;
         
         if (typeof logActivity === 'function') {
-            await logActivity('delete', 'results', { program_id: id, name: name });
+            await logActivity('delete_poster', 'results', { program_id: id, name: name });
         }
         
-        SessionGuard.notify('Program deleted permanently.', 'success');
-        CacheManager.invalidate(['program']); // Invalidate cache
+        ui.toast('Result image deleted successfully.', 'success');
+        CacheManager.invalidate(['results']); 
         await loadPrograms();
 
     } catch (e) {
@@ -250,6 +261,7 @@ async function handleDeleteProgram(id, name) {
         hideLoader();
     }
 }
+
 
 // Bulk Actions
 function toggleBulk() {
