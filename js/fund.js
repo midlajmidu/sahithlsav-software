@@ -158,16 +158,14 @@ function closeReceipt() {
 async function generateReceiptPdf() {
   await document.fonts.ready;
   await new Promise(r => setTimeout(r, 200));
-
   const paper = document.getElementById('receiptPaper');
+
   
-  // Set dimensions to ensure no clipping
   const width = paper.offsetWidth;
   const height = paper.scrollHeight;
 
-  // High-precision capture using a clone to prevent clipping
   const canvas = await html2canvas(paper, { 
-    scale: 2, 
+    scale: 1.5, // Reduced scale for smaller size
     useCORS: true,
     allowTaint: true,
     backgroundColor: '#ffffff',
@@ -179,15 +177,12 @@ async function generateReceiptPdf() {
       const clonedPaper = clonedDoc.getElementById('receiptPaper');
       const clonedWrapper = clonedPaper.closest('.receipt-wrapper');
       const clonedModal = clonedDoc.getElementById('receiptModal');
-      
-      // Remove all restrictive styles in the clone
       if (clonedModal) {
           clonedModal.style.position = 'static';
           clonedModal.style.display = 'block';
           clonedModal.style.height = 'auto';
           clonedModal.style.overflow = 'visible';
       }
-      
       if (clonedWrapper) {
           clonedWrapper.style.position = 'static';
           clonedWrapper.style.height = 'auto';
@@ -195,16 +190,15 @@ async function generateReceiptPdf() {
           clonedWrapper.style.margin = '0';
           clonedWrapper.style.padding = '0';
       }
-
       clonedPaper.style.height = 'auto';
       clonedPaper.style.overflow = 'visible';
       clonedPaper.style.display = 'block';
-      clonedPaper.style.margin = '0 auto';
     }
   });
 
-  
-  const imgData = canvas.toDataURL('image/png');
+  const imgData = canvas.toDataURL('image/jpeg', 0.7); // High quality but JPEG is much smaller than PNG
+
+
   const { jsPDF } = window.jspdf;
   
   // Calculate dynamic dimensions to prevent page break clipping
@@ -221,7 +215,8 @@ async function generateReceiptPdf() {
     format: [pdfW, pdfH] 
   });
 
-  pdf.addImage(imgData, 'PNG', margin, margin, canvasW/2, canvasH/2);
+  pdf.addImage(imgData, 'JPEG', margin, margin, canvasW/2, canvasH/2, undefined, 'FAST');
+
   return pdf;
 }
 
@@ -260,8 +255,8 @@ async function shareWhatsApp() {
     `Amount: *₹${Number(d.amount).toLocaleString('en-IN')}*\n` +
     `Payment: ${d.payment_method}\n` +
     `Gen. Secretary\n\n` +
-    `✅ *Verify this receipt:* ${window.location.origin}/verify.html?id=${d.receipt_number}\n\n` +
     `_Thank you for your generous contribution 🌿_\n_SSF Chathamangalam Sector_`;
+
 
   // Try Web Share API (Modern Mobile)
   if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([], "test.pdf")] })) {
