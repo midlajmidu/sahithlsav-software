@@ -65,7 +65,8 @@ const CacheManager = {
         const patterns = {
             'category': ['cat_cache', 'prog_cache', 'results_cache'],
             'program': ['prog_cache', 'results_cache', 'dashboard_cache'],
-            'score': ['score_cache'],
+            'score': ['score_cache', 'scores_'],
+
             'fund': ['fund_cache', 'analytics_cache', 'dashboard_cache'],
             'results': ['results_cache', 'dashboard_cache']
         };
