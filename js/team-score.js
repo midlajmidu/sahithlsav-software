@@ -50,7 +50,8 @@ async function loadStandings(update) {
         const teams = await fetchWithCache(`score_cache_${update.id}`, async () => {
             const { data } = await supabaseClient
                 .from('score_details')
-                .select('team_name, points, rank')
+                .select('team_name, points, position, team_logo')
+
                 .eq('update_id', update.id)
                 .order('points', { ascending: false });
             return data || [];
