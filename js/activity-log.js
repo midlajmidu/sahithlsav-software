@@ -18,11 +18,16 @@ async function logActivity(action, module = 'system', meta = {}) {
     delete safeMeta.token;
     delete safeMeta.secret;
 
-    let userEmail = 'anonymous';
+    let userEmail = 'anonymous_visitor';
     try {
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (session?.user?.email) userEmail = session.user.email;
+      // Don't await session if not needed immediately, avoid hanging on slow network
+      const sessionStr = localStorage.getItem('sb-' + SUPABASE_URL.split('//')[1].split('.')[0] + '-auth-token');
+      if (sessionStr) {
+          const session = JSON.parse(sessionStr);
+          if (session?.user?.email) userEmail = session.user.email;
+      }
     } catch (_) {}
+
 
     const entry = {
       action,

@@ -26,10 +26,13 @@ async function loadDashboardData() {
         return data || [];
     }, 1);
 
-    const { count: totalViews } = await supabaseClient
+    const { count: totalViews, error: viewsErr } = await supabaseClient
         .from('activity_logs')
         .select('*', { count: 'exact', head: true })
         .eq('action', 'visit');
+    
+    if (viewsErr) console.error('[Dashboard] Error fetching views:', viewsErr);
+
 
 
 
