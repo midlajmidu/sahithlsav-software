@@ -268,5 +268,17 @@
     <div style="font-size: 0.75rem; margin-top: 1rem; opacity: 0.5;">© 2026 SSF Chathamangalam. All rights reserved.</div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/activity-log.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+       // Log visit to grand total counter
+       if (typeof logActivity === 'function') {
+           logActivity('visit', 'public', { page: 'home', path: window.location.pathname });
+       }
+    });
+  </script>
 </body>
 </html>
+

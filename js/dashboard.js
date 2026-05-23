@@ -26,6 +26,12 @@ async function loadDashboardData() {
         return data || [];
     }, 1);
 
+    const { count: totalViews } = await supabaseClient
+        .from('activity_logs')
+        .select('*', { count: 'exact', head: true })
+        .eq('action', 'visit');
+
+
 
     const totalCategories  = categories.length;
     const totalPrograms    = programs.length;
@@ -54,6 +60,13 @@ async function loadDashboardData() {
     if (fundsCountEl) {
       fundsCountEl.textContent = `from ${funds.length} receipt${funds.length !== 1 ? 's' : ''}`;
     }
+
+
+    const viewsEl = document.getElementById('stat-views');
+    if (viewsEl) {
+      viewsEl.textContent = (totalViews || 0).toLocaleString();
+    }
+
 
     // ── Doughnut chart ─────────────────────────────────
     const ctx = document.getElementById('completionPieChart').getContext('2d');

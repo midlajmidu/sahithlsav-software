@@ -72,7 +72,7 @@ async function loadStandings(update) {
         // Calculate average points to use as a dynamic baseline
         const totalPoints = teams.reduce((sum, t) => sum + (t.points || 0), 0);
         const avgPoints = teams.length > 0 ? (totalPoints / teams.length) : 1;
-        
+
         // We use (average * 2) as the "full bar" reference.
         // This ensures that if everyone is equal, bars are 50% full.
         // If a team is double the average, they hit 100%.
@@ -178,7 +178,7 @@ function renderPreviousUpdates(updates) {
     }
 
     section.style.display = 'block';
-    
+
     // Paginate updates
     const start = (currentUpdatePage - 1) * UPDATE_PAGE_SIZE;
     const end = start + UPDATE_PAGE_SIZE;

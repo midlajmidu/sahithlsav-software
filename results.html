@@ -667,8 +667,17 @@
     </div>
   </div>
 
+  <script src="js/activity-log.js"></script>
   <script src="js/cache.js"></script>
   <script src="js/results.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+       if (typeof logActivity === 'function') {
+           logActivity('visit', 'public', { page: 'results', path: window.location.pathname });
+       }
+    });
+  </script>
+
 
 </body>
 

@@ -88,8 +88,19 @@
       Sector. All rights reserved.</div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/activity-log.js"></script>
   <script src="js/cache.js"></script>
   <script src="js/team-score.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+       if (typeof logActivity === 'function') {
+           logActivity('visit', 'public', { page: 'points', path: window.location.pathname });
+       }
+    });
+  </script>
+
 
 </body>
 
